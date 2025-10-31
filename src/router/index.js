@@ -6,16 +6,16 @@ import MerchantReports from '@/pages/MerchantReports.vue'
 import MerchantBeneficiaries from '@/pages/MerchantBeneficiaries.vue'
 import Settings from '@/pages/Settings.vue'
 import Login from '@/pages/Login.vue'
-import { useAuthStore } from '@/stores/auth'  // 👈 import auth store
+// import { useAuthStore } from '@/stores/auth'  // 🔒 temporarily disabled
 
 const routes = [
-  { path: '/', name: 'home', component: HomePage, meta: { requiresAuth: true } },
-  { path: '/login', name: 'login', component: Login, meta: { layout: 'auth' } },
-  { path: '/transactions', name: 'Transactions', component: Payouts, meta: { requiresAuth: true } },
-  { path: '/wallet', name: 'wallet', component: MerchantWallet, meta: { requiresAuth: true } },
-  { path: '/reports', name: 'reports', component: MerchantReports, meta: { requiresAuth: true } },
-  { path: '/beneficiary', name: 'beneficiary', component: MerchantBeneficiaries, meta: { requiresAuth: true } },
-  { path: '/settings', name: 'settings', component: Settings, meta: { requiresAuth: true } },
+  { path: '/', name: 'home', component: HomePage },
+  { path: '/login', name: 'login', component: Login },
+  { path: '/transactions', name: 'Transactions', component: Payouts },
+  { path: '/wallet', name: 'wallet', component: MerchantWallet },
+  { path: '/reports', name: 'reports', component: MerchantReports },
+  { path: '/beneficiary', name: 'beneficiary', component: MerchantBeneficiaries },
+  { path: '/settings', name: 'settings', component: Settings },
 ]
 
 const router = createRouter({
@@ -23,26 +23,23 @@ const router = createRouter({
   routes,
 })
 
-// 🛡️ Authentication Guard
-router.beforeEach(async (to, from, next) => {
-  const auth = useAuthStore()
+// 🚫 Auth guard disabled for demo
+// router.beforeEach(async (to, from, next) => {
+//   const auth = useAuthStore()
 
-  // Only fetch user once per app load
-  if (!auth.user && to.meta.requiresAuth) {
-    await auth.getUser()
-  }
+//   if (!auth.user && to.meta.requiresAuth) {
+//     await auth.getUser()
+//   }
 
-  // Redirect unauthenticated users to login
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return next('/login')
-  }
+//   if (to.meta.requiresAuth && !auth.isAuthenticated) {
+//     return next('/login')
+//   }
 
-  // Prevent logged-in users from going back to login
-  if (to.path === '/login' && auth.isAuthenticated) {
-    return next('/')
-  }
+//   if (to.path === '/login' && auth.isAuthenticated) {
+//     return next('/')
+//   }
 
-  next()
-})
+//   next()
+// })
 
 export default router
