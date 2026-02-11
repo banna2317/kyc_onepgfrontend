@@ -85,6 +85,7 @@ export const useAuthStore = defineStore("auth", () => {
    */
   const signOut = async () => {
     try {
+
       if (accessToken.value) {
         await axios.post("/logout", {}, {
           headers: { Authorization: `Bearer ${accessToken.value}` }

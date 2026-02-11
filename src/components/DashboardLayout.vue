@@ -155,11 +155,11 @@ const isActive = (href: string) => {
 
 onMounted(async () => {
   try {
-    console.log('fddd');
+
     
     const response = await axios.post("/user");
     username.value = response.data.user;
-    console.log('fdfd',response.data);
+   
   } catch (error: any) {
     console.error(error.response?.data?.message || error.message || "API call failed");
   }

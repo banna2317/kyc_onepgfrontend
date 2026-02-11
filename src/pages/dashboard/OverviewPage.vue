@@ -64,12 +64,12 @@ async function getrecords() {
       end_date: date.value && date.value[1] ? format(date.value[1], "yyyy-MM-dd") : null,
     };
 
-    console.log("Fetching data for:", payload);
+ 
 
     // API call mein payload bhejein
     const response = await axios.post('/overviewdata', payload);
 
-    console.log('API', response);
+  
     if (response.data.status) {
       const data = response.data.data;
 
