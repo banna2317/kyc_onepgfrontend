@@ -5,11 +5,11 @@
 /* OnePG Payout Design System - Production-grade fintech platform */
 /* Custom toast style */
 .custom-toast-wrapper {
-  background: #fff !important;
+  background: #2104f8 !important;
   border-radius: 10px !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
   padding: 16px !important;
-  color: #222 !important;
+  color: #fff !important;
   font-family: "Inter", sans-serif;
   display: flex !important;
   align-items: flex-start !important;
@@ -32,72 +32,69 @@
 
 @layer base {
   :root {
-    /* Core brand colors */
-    --background: 0 0% 99%;
-    --foreground: 215 25% 15%;
-    
-    /* Surface colors */
+    /* OnePG SecureID Brand Colors */
+    --background: 0 0% 100%;
+    --foreground: 220 13% 18%;
+
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
-    --surface: 220 13% 97%;
-    --surface-foreground: 215 25% 15%;
-    
-    /* Popover */
+    --card-foreground: 220 13% 18%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
-    
-    /* Brand primary - OnePG Blue (#0EA5E9) */
-    --primary: 199 89% 48%;
+    --popover-foreground: 220 13% 18%;
+
+    /* Primary Brand - OnePG Blue */
+    --primary: 235 85% 68%;  /* #5B6CFF */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 199 89% 60%;
-    
-    /* Success/Accent - OnePG Green (#22C55E) */
-    --success: 142 76% 46%;
-    --success-foreground: 0 0% 100%;
-    
-    /* Secondary neutral */
+    --primary-glow: 235 85% 85%;
+    --primary-dark: 235 85% 55%;
+
+    /* Accent Colors */
+    --accent: 172 100% 37%;  /* #00BFA6 */
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 172 100% 45%;
+
     --secondary: 220 13% 97%;
-    --secondary-foreground: 215 25% 15%;
-    
-    /* Muted states */
+    --secondary-foreground: 220 13% 18%;
+
     --muted: 220 13% 96%;
-    --muted-foreground: 215 16% 47%;
-    
-    /* Accent colors */
-    --accent: 220 13% 97%;
-    --accent-foreground: 215 25% 15%;
-    
-    /* Status colors */
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Status Colors */
+    --warning: 40 100% 56%;   /* #FFB020 */
     --warning-foreground: 0 0% 100%;
     
-    /* Border and inputs */
+    --destructive: 0 84% 60%; /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 172 100% 37%;  /* Same as accent for success states */
+    --success-foreground: 0 0% 100%;
+
+    /* UI Elements */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 199 89% 48%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(261 73% 62%));
-    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(158 76% 55%));
-    --gradient-surface: linear-gradient(180deg, hsl(var(--background)), hsl(var(--surface)));
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(var(--primary) / 0.05);
-    --shadow: 0 4px 6px -1px hsl(var(--primary) / 0.1), 0 2px 4px -1px hsl(var(--primary) / 0.06);
-    --shadow-lg: 0 10px 15px -3px hsl(var(--primary) / 0.1), 0 4px 6px -2px hsl(var(--primary) / 0.05);
-    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.05), 0 8px 25px -5px hsl(var(--primary) / 0.2);
-    
-    /* Animation speeds */
-    --transition-fast: 0.15s ease-out;
-    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bouncy: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    
-    --radius: 1rem;
+    --ring: 235 85% 68%;
 
-    --radius: 1rem;
+    --radius: 1rem;  /* rounded-2xl default */
+
+    /* Glassmorphism Effects */
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 220 13% 91% / 0.3;
+    --glass-shadow: 220 13% 18% / 0.1;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-dark)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    --gradient-glass: linear-gradient(135deg, hsl(var(--glass-bg)), hsl(0 0% 100% / 0.4));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(var(--glass-shadow));
+    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.3);
+    --shadow-card: 0 8px 32px -8px hsl(var(--glass-shadow));
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -117,43 +114,33 @@
   }
 
   .dark {
-    /* Dark mode colors - maintaining OnePG brand */
-    --background: 215 28% 6%;
-    --foreground: 0 0% 98%;
-    
-    --card: 215 28% 8%;
-    --card-foreground: 0 0% 98%;
-    --surface: 215 25% 10%;
-    --surface-foreground: 0 0% 98%;
-    
-    --popover: 215 28% 8%;
-    --popover-foreground: 0 0% 98%;
-    
-    /* Brand colors remain consistent in dark mode */
-    --primary: 199 89% 48%; 
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 199 89% 60%;
-    
-    --success: 142 76% 46%;
-    --success-foreground: 0 0% 100%;
-    
-    --secondary: 215 25% 15%;
-    --secondary-foreground: 0 0% 98%;
-    
-    --muted: 215 25% 12%;
-    --muted-foreground: 215 15% 65%;
-    
-    --accent: 215 25% 15%;
-    --accent-foreground: 0 0% 98%;
-    
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-    
-    --border: 215 25% 18%;
-    --input: 215 25% 18%;
-    --ring: 199 89% 48%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -172,5 +159,12 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+
+@layer components {
+  .glass-card {
+    @apply bg-gradient-glass backdrop-blur-xl border border-border/30 shadow-card rounded-2xl;
   }
 }

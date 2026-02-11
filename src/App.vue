@@ -1,12 +1,7 @@
 <template>
-  <!-- Dynamically load layout based on route.meta.layout -->
-  <component
-    :is="layoutComponent"
-    v-bind="layoutProps"
-  >
-    <router-view />
-  </component>
+  <RouterView />
 </template>
+
 
 <script setup>
 import { computed } from "vue";

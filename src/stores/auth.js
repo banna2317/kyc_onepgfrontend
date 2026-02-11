@@ -1,42 +1,110 @@
+// src/stores/auth.js
 import { defineStore } from "pinia";
-import { login, logout, fetchUser } from "@/services/auth";
+import { ref } from "vue";
+import axios from "../axios"; // tumhara axios instance
 
-export const useAuthStore = defineStore("auth", {
-  state: () => ({
-    user: null,
-    loading: false,
-  }),
+export const useAuthStore = defineStore("auth", () => {
+  const user = ref(null);
+  const accessToken = ref(null);
+  const loading = ref(true);
 
-  getters: {
-    isAuthenticated: (state) => !!state.user,
-  },
-
-  actions: {
-    async getUser() {
+  /**
+   * Initialize auth state from localStorage
+   */
+  const initAuth = () => {
+    const rawUser = localStorage.getItem("auth_user");
+    const token = localStorage.getItem("auth_token");
+    if (rawUser && token) {
       try {
-        this.loading = true;
-        const res = await fetchUser();
-        this.user = res.data;
-      } catch {
-        this.user = null;
-      } finally {
-        this.loading = false;
+        user.value = JSON.parse(rawUser);
+        accessToken.value = token;
+      } catch (err) {
+        console.error("Failed to parse auth data:", err);
       }
-    },
+    }
+    loading.value = false;
+  };
 
-    async login(email, password) {
-      try {
-        this.loading = true;
-        await login(email, password);
-        await this.getUser(); // Fetch after login
-      } finally {
-        this.loading = false;
+  /**
+   * Login user
+   */
+  const login = async (email, password) => {
+    try {
+      console.log('dsdds');
+
+      const res = await axios.post("/login", { email, password });
+      console.log(res);
+
+      user.value = res.data.user;
+      accessToken.value = res.data.token;
+
+      localStorage.setItem("auth_user", JSON.stringify(user.value));
+      localStorage.setItem("auth_token", accessToken.value);
+
+      return { error: null };
+    } catch (err) {
+      return { error: err.response?.data || { message: "Login failed" } };
+    }
+  };
+ 
+  /**
+   * Register / Sign up user
+   */
+  const signUp = async (name, email, phone_number, password) => {
+    console.log('sss',name, email, phone_number, password);
+    
+    try {
+      console.log('parth');
+      
+      const res = await axios.post("/register", { name, email, phone_number, password });
+      console.log('dhamo',res);
+      
+      user.value = res.data.user;
+      accessToken.value = res.data.token;
+
+      localStorage.setItem("auth_user", JSON.stringify(user.value));
+      localStorage.setItem("auth_token", accessToken.value);
+
+      return { error: null };
+    } catch (err) {
+      return { error: err.response?.data || { message: "SignUp failed" } };
+    }
+  };
+
+  /**
+   * Logout user
+   */
+  const signOut = async () => {
+    try {
+      if (accessToken.value) {
+        await api.post("/logout", {}, {
+          headers: { Authorization: `Bearer ${accessToken.value}` }
+        });
       }
-    },
+    } catch (err) {
+      console.warn("Logout failed:", err);
+    } finally {
+      user.value = null;
+      accessToken.value = null;
+      localStorage.removeItem("auth_user");
+      localStorage.removeItem("auth_token");
+    }
+    return { error: null };
+  };
 
-    async logout() {
-      await logout();
-      this.user = null;
-    },
-  },
+  /**
+   * Check if user is logged in
+   */
+  const isAuthenticated = () => !!user.value;
+
+  return {
+    user,
+    accessToken,
+    loading,
+    initAuth,
+    login,
+    signUp,
+    signOut,
+    isAuthenticated,
+  };
 });

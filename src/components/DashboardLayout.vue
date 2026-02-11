@@ -1,179 +1,318 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter, RouterLink, RouterView } from "vue-router";
+import {
+  BarChart3,
+  Shield,
+  Workflow,
+  Video,
+  AlertTriangle,
+  Settings,
+  Webhook,
+  Key,
+  CreditCard,
+  Activity,
+  FileText,
+  Menu,
+  X,
+  Search,
+  Bell,
+  User,
+  ChevronDown,
+  Moon,
+  Sun,
+  Grid3X3,
+  Zap,
+  Building2,
+  Lock,
+  ChevronRight,
+} from "lucide-vue-next";
+import axios from "../axios";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+// import { Logo } from "@/components/Logo";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useAuthStore } from "@/stores/auth";
 
-// Props
-interface SidebarItem {
-  name: string;
-  href: string;
-  icon: any;
-  active?: boolean;
-  badge?: string;
-}
+const sidebarOpen = ref(false);
+const expandedGroups = ref<Record<string, boolean>>({
+  // "Bank Account": true,
+  // "Aadhaar/PAN": true,
+});
 
-interface DashboardLayoutProps {
-  sidebarItems: SidebarItem[];
-  userType: "merchant" | "admin" | "ops";
-}
-
-const props = defineProps<DashboardLayoutProps>();
-
-// State
-const isMobileMenuOpen = ref(false);
-const showDropdown = ref(false); // ✅ Added
+const route = useRoute();
 const router = useRouter();
+const { signOut } = useAuthStore();
 
-// Simulated Auth (replace with your real composable)
-const signOut = async () => {
-  console.log("Signing out...");
-  router.push("/auth");
+const username = ref("")
+
+const mainNavItems = [
+  { name: "Overview", href: "/app", icon: BarChart3 },
+];
+
+const serviceGroups = [
+  {
+    title: "Corporate",
+    icon: Lock,
+    items: [
+      { name: "Company Info", href: "/app/services/company", icon: User },
+      { name: "DIN Info", href: "/app/services/din", icon: User },
+      { name: "GSTIN", href: "/app/services/gstin", icon: User },
+
+    ],
+  },
+  {
+    title: "Voter",
+    icon: Lock,
+    items: [
+      { name: "Voter", href: "/app/services/voter", icon: User },
+
+    ],
+  },
+  {
+    title: "License",
+    icon: Lock,
+    items: [
+      { name: "License", href: "/app/services/license", icon: User },
+
+    ],
+  },
+  {
+    title: "RC",
+    icon: Lock,
+    items: [
+      { name: "RC Full", href: "/app/services/rc-full", icon: User },
+      { name: "RC Special", href: "/app/services/rc-special", icon: User },
+      { name: "RC With Mobilel", href: "/app/services/rc-mobile", icon: User },
+      { name: "Engine To RC", href: "/app/services/rc-engine", icon: User },
+      { name: "Fastag", href: "/app/services/fastag", icon: User },
+    ],
+  },
+  {
+    title: "PANCARD",
+    icon: Lock,
+    items: [
+      { name: "PAN Lite", href: "/app/services/pan-lite", icon: User },
+      { name: "PAN Aadhaar Linked", href: "/app/services/pan-adhaar-link", icon: User },
+      { name: "PAN Verification", href: "/app/services/pan-verification", icon: User },
+      { name: "PAN Link", href: "/app/services/pan-link", icon: User },
+      { name: "PAN Masked", href: "/app/services/pan-masked", icon: User },
+      { name: "PAN With DOB", href: "/app/services/pan-dob", icon: User },
+      { name: "PAN Advance", href: "/app/services/pan-advance", icon: User },
+
+    ],
+  },
+  {
+    title: "Bank Account",
+    icon: Building2,
+    items: [
+      { name: "Bank Account - Verification Penny Drop", href: "/app/services/Verification-penny", icon: CreditCard },
+      { name: "Bank Account - Mobile To UPI", href: "/app/services/mobile-to-upi", icon: CreditCard },
+      { name: "Bank Account - Mobile To UPI Advance", href: "/app/services/mobile-upi-advance", icon: CreditCard },
+      { name: "Bank Account", href: "/app/services/bank-verification", icon: CreditCard },
+      { name: "Bank Account - Reverse Penny Less", href: "/app/services/verification-less", icon: CreditCard },
+      { name: "UPI", href: "/app/services/upi-verification", icon: Building2 },
+      { name: "IFSC-Verification", href: "/app/services/ifsc-verification", icon: Building2 },
+    ],
+  },
+  {
+    title: "Aadhaar",
+    icon: Lock,
+    items: [
+      { name: "Aadhaar", href: "/app/services/aadhaarcard", icon: User },
+      { name: "Aadhaar-validation", href: "/app/services/aadhaar-validation", icon: User },
+      // { name: "Aadhaar OKYC", href: "/app/services/aadhaar-okyc", icon: User },
+      // { name: "Aadhaar Masking", href: "/app/services/aadhaar-masking", icon: User },
+      // { name: "DigiLocker - Aadhaar", href: "/app/services/digilocker-aadhaar", icon: Lock },
+      // { name: "PAN", href: "/app/services/pan-lite", icon: FileText },
+      // { name: "PAN 360", href: "/app/services/pan-360", icon: FileText },
+      // { name: "PAN Lite", href: "/app/services/pan-lite", icon: FileText },
+    ],
+  },
+
+];
+
+const bottomNavItems = [
+  { name: "IP Whitelist", href: "/app/webhooks", icon: Webhook },
+  { name: "API Keys", href: "/app/api-keys", icon: Key },
+  { name: "Billing", href: "/app/billing", icon: CreditCard },
+  { name: "Settings", href: "/app/settings", icon: Settings },
+  { name: "Docs", href: "/docs", icon: FileText },
+];
+
+const isActive = (href: string) => {
+  if (href === "/app") return route.path === "/app";
+  return route.path.startsWith(href);
 };
 
-// Get user info based on userType
-const user = computed(() => {
-  switch (props.userType) {
-    case "admin":
-      return { name: "Admin User", email: "admin@onepg.com", initials: "AU", role: "System Admin" };
-    case "ops":
-      return { name: "Operations Manager", email: "ops@onepg.com", initials: "OM", role: "Operations" };
-    default:
-      return { name: "John Doe", email: "john@company.com", initials: "JD", role: "Merchant" };
+onMounted(async () => {
+  try {
+    const response = await axios.get("/user");
+    username.value = response.data.user;
+    console.log(response.data.user);
+  } catch (error: any) {
+    console.error(error.response?.data?.message || error.message || "API call failed");
   }
 });
+
+const handleSignOut = async () => {
+  await signOut();
+  router.push("/login");
+};
 </script>
 
 <template>
-  <div class="min-h-screen bg-background">
-    <!-- Top Header -->
-    <header class="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
-      <div class="flex h-16 items-center justify-between px-4 lg:px-6">
-        <!-- Left side -->
-        <div class="flex items-center space-x-4">
-          <button class="lg:hidden p-2 rounded-md hover:bg-accent" @click="isMobileMenuOpen = !isMobileMenuOpen">
-            <MenuIcon :is="isMobileMenuOpen ? 'XIcon' : 'MenuIcon'" class="h-5 w-5" />
-          </button>
+  <div class="min-h-screen flex flex-col lg:flex-row bg-background">
+    <!-- Mobile Sidebar Overlay -->
+    <div v-if="sidebarOpen" class="fixed inset-0 z-40 bg-black/10 lg:hidden" @click="sidebarOpen = false" />
 
-          <div class="flex items-center space-x-2">
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
-              <Building2 :is="'Building2Icon'" class="h-5 w-5 text-white" />
-            </div>
-            <span class="font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
-              OnePG Payout
-            </span>
-          </div>
-        </div>
-
-        <!-- Center - Search -->
-        <div class="hidden md:flex flex-1 max-w-md mx-8">
-          <div class="relative w-full">
-            <SearchIcon class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input type="search" placeholder="Search payouts, beneficiaries..."
-              class="w-full pl-10 pr-4 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring" />
-          </div>
-        </div>
-
-        <!-- Right side -->
-        <div class="flex items-center space-x-4">
-          <button class="relative p-2 rounded-md hover:bg-accent">
-            <BellIcon class="h-5 w-5" />
-            <span
-              class="absolute -top-1 -right-1 h-5 w-5 text-xs bg-red-500 text-white rounded-full flex items-center justify-center">3</span>
-          </button>
-
-          <!-- User dropdown -->
-          <div class="relative" @click="showDropdown = !showDropdown">
-            <div class="flex items-center space-x-2 cursor-pointer">
-              <div class="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-semibold">
-                {{ user.initials }}
-              </div>
-              <div class="hidden md:block text-left">
-                <div class="text-sm font-medium">{{ user.name }}</div>
-                <div class="text-xs text-muted-foreground">{{ user.role }}</div>
-              </div>
-              <ChevronDownIcon class="h-4 w-4" />
-            </div>
-
-            <!-- Dropdown Menu -->
-            <div v-if="showDropdown"
-              class="absolute right-0 mt-2 w-56 bg-popover border border-border rounded-md shadow-md z-50">
-              <div class="px-4 py-2 text-sm font-medium border-b border-border">
-                My Account
-              </div>
-              <button class="flex items-center w-full px-4 py-2 text-sm hover:bg-accent"
-                @click="router.push('/dashboard/merchant/settings')">
-                <UserIcon class="h-4 w-4 mr-2" /> Profile
-              </button>
-              <button class="flex items-center w-full px-4 py-2 text-sm hover:bg-accent"
-                @click="router.push('/dashboard/merchant/settings')">
-                <SettingsIcon class="h-4 w-4 mr-2" /> Settings
-              </button>
-              <div class="border-t border-border my-1" />
-              <button class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50" @click="signOut">
-                <LogOutIcon class="h-4 w-4 mr-2" /> Sign out
-              </button>
-            </div>
-          </div>
-        </div>
+    <!-- Sidebar -->
+    <div
+      class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-glass backdrop-blur-xl border-r border-border/50 overflow-y-auto
+        transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 lg:flex lg:flex-col"
+      :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+      <div class="flex items-center justify-between h-16 px-6 border-b border-border/50">
+        <span class="font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+          OnePG
+        </span>
+        <Button variant="ghost" size="sm" class="lg:hidden" @click="sidebarOpen = false">
+          <X class="h-5 w-5" />
+        </Button>
       </div>
-    </header>
 
-    <div class="flex min-h-screen h-full">
-      <!-- Sidebar -->
-      <aside :class="[
-        'fixed inset-y-0 left-0 z-40 w-64 border-r border-border bg-card transform transition-transform lg:translate-x-0 lg:static lg:inset-0',
-        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-      ]" style="top: 64px">
-        <nav class="p-4 space-y-2">
-          <RouterLink v-for="(item, index) in props.sidebarItems" :key="index" :to="item.href"
-            class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors  " :class="[
-              item.active
-                ? 'bg-primary text-primary-foreground'
-               : 'text-foreground hover:bg-[#00BDA4] hover:text-primary-foreground transition-colors duration-300'
+      <nav class="flex-1 px-4 py-6 space-y-2">
+        <!-- Main Nav -->
+        <RouterLink v-for="item in mainNavItems" :key="item.name" :to="item.href"
+          class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200" :class="isActive(item.href)
+            ? 'bg-primary/10 text-primary border border-primary/20'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'" @click="sidebarOpen = false">
+          <component :is="item.icon" class="mr-3 h-5 w-5" />
+          {{ item.name }}
+        </RouterLink>
 
+        <!-- Service Groups -->
+        <Collapsible v-for="group in serviceGroups" :key="group.title" :open="expandedGroups[group.title]"
+          @update:open="val => expandedGroups[group.title] = val">
+          <CollapsibleTrigger as-child>
+            <button
+              class="flex items-center w-full px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-200">
+              <component :is="group.icon" class="mr-3 h-5 w-5" />
+              {{ group.title }}
+              <ChevronRight class="ml-auto h-4 w-4 transition-transform duration-200"
+                :class="{ 'rotate-90': expandedGroups[group.title] }" />
+            </button>
+          </CollapsibleTrigger>
 
-            ]">
-            <div class="flex items-center space-x-3">
-              <component :is="item.icon" class="h-4 w-4" />
-              <span>{{ item.name }}</span>
-            </div>
-            <span v-if="item.badge"
-              class="ml-auto bg-gray-200 text-gray-800 text-xs font-medium px-2 py-0.5 rounded-full">
-              {{ item.badge }}
+          <CollapsibleContent class="ml-6 space-y-1">
+            <RouterLink v-for="item in group.items" :key="item.name" :to="item.href"
+              class="flex items-center px-4 py-2 text-sm rounded-lg transition-all duration-200" :class="isActive(item.href)
+                ? 'bg-primary/10 text-primary border border-primary/20'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'" @click="sidebarOpen = false">
+              <component :is="item.icon" class="mr-3 h-4 w-4" />
+              {{ item.name }}
+            </RouterLink>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <div class="my-4 border-t border-border/50" />
+
+        <!-- Bottom Nav -->
+        <RouterLink v-for="item in bottomNavItems" :key="item.name" :to="item.href"
+          class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200" :class="isActive(item.href)
+            ? 'bg-primary/10 text-primary border border-primary/20'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'" @click="sidebarOpen = false">
+          <component :is="item.icon" class="mr-3 h-5 w-5" />
+          {{ item.name }}
+        </RouterLink>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Top Bar -->
+      <header
+        class="h-16 bg-gradient-glass backdrop-blur-xl border-b border-border/50 flex items-center justify-between px-6">
+        <div class="flex items-center space-x-4">
+          <Button variant="ghost" size="sm" class="lg:hidden" @click="sidebarOpen = true">
+            <Menu class="h-5 w-5" />
+          </Button>
+
+          <!-- Org Selector -->
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <Button variant="ghost" class="hidden md:flex items-center space-x-2">
+                <span class="text-sm font-medium">Acme Finserve</span>
+                <ChevronDown class="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" class="w-56">
+              <DropdownMenuLabel>Organizations</DropdownMenuLabel>
+              <DropdownMenuItem>
+                <div class="flex items-center space-x-2">
+                  <div class="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
+                    <span class="text-xs font-bold text-primary-foreground">A</span>
+                  </div>
+                  <span>Acme Finserve</span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem class="text-muted-foreground">
+                Switch Organization...
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <!-- Search -->
+          <div class="relative hidden md:block w-64">
+            <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Search verifications, users..." class="pl-10 h-9" />
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <!-- Notifications -->
+          <Button variant="ghost" size="sm" class="h-9 w-9 relative">
+            <Bell class="h-4 w-4" />
+            <span
+              class="absolute -top-1 -right-1 h-5 w-5 bg-destructive text-destructive-foreground text-[10px] leading-none rounded-full flex items-center justify-center font-medium">
+              3
             </span>
-          </RouterLink>
-        </nav>
-      </aside>
+          </Button>
 
-      <!-- Overlay -->
-      <div v-if="isMobileMenuOpen" class="fixed inset-0 z-30 bg-black/50 lg:hidden" @click="isMobileMenuOpen = false" />
+          <!-- Profile Menu -->
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <Button variant="ghost" size="sm" class="h-9 w-9">
+                <User class="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" class="w-56">
+              <DropdownMenuLabel> {{ username?.name }}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem @select="router.push('/app/settings')">Profile Settings</DropdownMenuItem>
+              <DropdownMenuItem @select="router.push('/app/billing')">Billing</DropdownMenuItem>
+              <DropdownMenuItem @select="router.push('/app/api-keys')">API Keys</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem class="text-destructive" @select="handleSignOut">
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
 
-      <!-- Main -->
-      <main class="flex-1 lg:ml-0 p-4 lg:p-6">
+      <!-- Page Content -->
+      <main class="flex-1 p-6 overflow-auto">
         <RouterView />
       </main>
     </div>
-
   </div>
 </template>
-
-<script lang="ts">
-// Icons (use lucide-vue-next or Heroicons)
-import {
-  BellIcon,
-  SearchIcon,
-  SettingsIcon,
-  UserIcon,
-  LogOutIcon,
-  ChevronDownIcon,
-  MenuIcon,
-  XIcon,
-  Building2,
-} from "lucide-vue-next";
-</script>
-
-<style scoped>
-.bg-gradient-primary {
-  background: linear-gradient(to right, #4f46e5, #9333ea);
-}
-</style>

@@ -41,9 +41,10 @@ import {
   AlertTriangle,
   ArrowUpRight,
   ArrowDownRight,
-  DollarSign
+IndianRupeeIcon
 } from "lucide-vue-next"
-
+import { toast } from "vue-sonner"
+import OtpDialog from "@/components/OtpDialog.vue"
 const isBulkUploadOpen = ref(false)
 const isCreateDialogOpen = ref(false)
 
@@ -53,16 +54,7 @@ const beneficiariesList = [
   { id: "BEN-003", name: "Amit Patel", account: "70300034567890", bank: "Axis Bank", verified: true },
 ]
 
-const stats = [
-  {
-    title: "Available Balance",
-    value: "₹2,45,670",
-    change: "+12.5%",
-    trend: "up",
-    icon: Wallet,
-    description: "Ready to use"
-  }
-]
+
 
 const recentPayouts = [
   { id: "PAY_001", beneficiary: "John Doe", amount: "₹5,000", status: "success", time: "2 mins ago", mode: "IMPS" },
@@ -70,7 +62,8 @@ const recentPayouts = [
   { id: "PAY_003", beneficiary: "Jane Smith", amount: "₹3,500", status: "failed", time: "8 mins ago", mode: "UPI" },
   { id: "PAY_004", beneficiary: "Tech Solutions", amount: "₹50,000", status: "success", time: "12 mins ago", mode: "RTGS" }
 ]
-
+const isOtpDialogOpen = ref(false)
+const generatedOtp = ref("123456") // demo OTP
 const getStatusIcon = (status) => {
   switch (status) {
     case "success":
@@ -82,6 +75,10 @@ const getStatusIcon = (status) => {
     default:
       return AlertTriangle
   }
+}
+const handleOpenOtpDialog = () => {
+  toast.message("OTP sent to your registered number")
+  isOtpDialogOpen.value = true
 }
 
 const getStatusColor = (status) => {
@@ -147,17 +144,20 @@ const getStatusColor = (status) => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <Button variant="hero" class="group" @click="handleOpenOtpDialog">
+          <Plus class="mr-2 h-4 w-4" />
+          New Payout
+          <ArrowUpRight
+            class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+        </Button>
+        <!-- OTP Verification Dialog -->
+        <OtpDialog v-model:open="isOtpDialogOpen" :generatedOtp="generatedOtp" @verified="() => {
+          isCreateDialogOpen = true
+        }" @cancel="isOtpDialogOpen = false" />
 
         <!-- Create Payout Dialog -->
         <Dialog v-model:open="isCreateDialogOpen">
-          <DialogTrigger as-child>
-            <Button variant="hero" class="group">
-              <Plus class="mr-2 h-4 w-4" />
-              New Payout
-              <ArrowUpRight
-                class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </Button>
-          </DialogTrigger>
+
           <DialogContent class="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Create New Payout</DialogTitle>
@@ -217,26 +217,57 @@ const getStatusColor = (status) => {
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      <Card v-for="(stat, index) in stats" :key="index" class="hover:shadow-smooth transition-all duration-300">
+    <!-- Payout Status Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Completed -->
+      <Card class="hover:shadow-smooth transition-all duration-300">
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium text-muted-foreground">{{ stat.title }}</CardTitle>
-          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-            <component :is="stat.icon" class="h-4 w-4 text-primary" />
-          </div>
+          <CardTitle class="text-sm font-medium text-success">Completed</CardTitle>
+          <CheckCircle class="h-5 w-5 text-success" />
         </CardHeader>
         <CardContent>
-          <div class="text-2xl font-bold">{{ stat.value }}</div>
-          <div class="flex items-center space-x-2 text-xs">
-            <span class="flex items-center" :class="stat.trend === 'up' ? 'text-success' : 'text-destructive'">
-              <component :is="stat.trend === 'up' ? ArrowUpRight : ArrowDownRight" class="mr-1 h-3 w-3" />
-              {{ stat.change }}
-            </span>
-            <span class="text-muted-foreground">{{ stat.description }}</span>
-          </div>
+          <div class="text-2xl font-bold text-success">1,234</div>
+          <p class="text-xs text-muted-foreground">Successful payouts</p>
+        </CardContent>
+      </Card>
+
+      <!-- Pending -->
+      <Card class="hover:shadow-smooth transition-all duration-300">
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle class="text-sm font-medium text-warning">Pending</CardTitle>
+          <Clock class="h-5 w-5 text-warning" />
+        </CardHeader>
+        <CardContent>
+          <div class="text-2xl font-bold text-warning">56</div>
+          <p class="text-xs text-muted-foreground">Awaiting processing</p>
+        </CardContent>
+      </Card>
+
+      <!-- Failed -->
+      <Card class="hover:shadow-smooth transition-all duration-300">
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle class="text-sm font-medium text-destructive">Failed</CardTitle>
+          <XCircle class="h-5 w-5 text-destructive" />
+        </CardHeader>
+        <CardContent>
+          <div class="text-2xl font-bold text-destructive">12</div>
+          <p class="text-xs text-muted-foreground">Transactions failed</p>
+        </CardContent>
+      </Card>
+
+      <!-- Reversed -->
+      <Card class="hover:shadow-smooth transition-all duration-300">
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle class="text-sm font-medium text-blue-600">Reversed</CardTitle>
+          <ArrowDownRight class="h-5 w-5 text-blue-600" />
+        </CardHeader>
+        <CardContent>
+          <div class="text-2xl font-bold text-blue-600">3</div>
+          <p class="text-xs text-muted-foreground">Reversed by bank</p>
         </CardContent>
       </Card>
     </div>
+
 
     <div class="grid gap-6 lg:grid-cols-3">
       <!-- Recent Payouts -->
@@ -280,66 +311,7 @@ const getStatusColor = (status) => {
 
       <!-- Quick Actions -->
       <div class="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle class="text-lg font-semibold">Quick Actions</CardTitle>
-          </CardHeader>
 
-          <CardContent class="space-y-3">
-            <!-- Create Payout -->
-            <Button variant="outline"
-              class="w-full justify-start group relative overflow-hidden transition-all duration-300 hover:border-primary hover:text-primary hover:shadow-glow"
-              as-child>
-              <a href="/dashboard/merchant/payouts">
-                <CreditCard
-                  class="mr-3 h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary" />
-                Create Payout
-                <ArrowUpRight
-                  class="ml-auto h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-              </a>
-            </Button>
-
-            <!-- Add Beneficiary -->
-            <Button variant="outline"
-              class="w-full justify-start group relative overflow-hidden transition-all duration-300 hover:border-success hover:text-success hover:shadow-glow"
-              as-child>
-              <a href="/dashboard/merchant/beneficiaries">
-                <Users
-                  class="mr-3 h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:text-success" />
-                Add Beneficiary
-                <ArrowUpRight
-                  class="ml-auto h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-              </a>
-            </Button>
-
-            <!-- Fund Wallet -->
-            <Button variant="outline"
-              class="w-full justify-start group relative overflow-hidden transition-all duration-300 hover:border-warning hover:text-warning hover:shadow-glow"
-              as-child>
-              <a href="/dashboard/merchant/wallet">
-                <Wallet
-                  class="mr-3 h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:text-warning" />
-                Fund Wallet
-                <ArrowUpRight
-                  class="ml-auto h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-              </a>
-            </Button>
-
-            <!-- View Reports -->
-            <Button variant="outline"
-              class="w-full justify-start group relative overflow-hidden transition-all duration-300 hover:border-purple-500 hover:text-purple-500 hover:shadow-glow
-"
-              as-child>
-              <a href="/dashboard/merchant/reports">
-                <BarChart3
-                  class="mr-3 h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:text-purple-500" />
-                View Reports
-                <ArrowUpRight
-                  class="ml-auto h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-              </a>
-            </Button>
-          </CardContent>
-        </Card>
 
 
 
@@ -347,7 +319,7 @@ const getStatusColor = (status) => {
         <Card>
           <CardHeader>
             <CardTitle class="text-lg flex items-center">
-              <DollarSign class="mr-2 h-5 w-5 text-success" />
+              <IndianRupeeIcon class="mr-2 h-5 w-5 text-success" />
               Monthly Summary
             </CardTitle>
           </CardHeader>
@@ -363,10 +335,6 @@ const getStatusColor = (status) => {
             <div class="flex justify-between items-center">
               <span class="text-sm text-muted-foreground">Failed</span>
               <span class="font-medium text-destructive">12</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Fees Paid</span>
-              <span class="font-medium">₹4,567</span>
             </div>
           </CardContent>
         </Card>

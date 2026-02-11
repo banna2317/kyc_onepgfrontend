@@ -6,22 +6,35 @@ export function useToast() {
   const toast = useVueToast();
 
   return {
-    toast: ({ title, description }: { title: string; description?: string }) => {
+    toast: ({
+      title,
+      description,
+      variant = "default",
+    }: {
+      title: string;
+      description?: string;
+      variant?: "default" | "success" | "destructive" | "info";
+    }) => {
       toast(
         {
           render: () =>
-            h("div", { class: "custom-toast" }, [
-              h("div", { class: "toast-title" }, title),
-              description ? h("div", { class: "toast-description" }, description) : null,
-            ]),
+            h(
+              "div",
+              { class: `shadcn-toast ${variant}` }, // 👈 SAME CLASS LIKE REACT
+              [
+                h("div", { class: "toast-title" }, title),
+                description
+                  ? h("div", { class: "toast-description" }, description)
+                  : null,
+              ]
+            ),
         },
         {
-         
           timeout: 4000,
           hideProgressBar: true,
           closeButton: false,
           draggable: true,
-        icon: false,
+          icon: false,
           toastClassName: "custom-toast-wrapper",
         }
       );

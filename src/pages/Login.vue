@@ -1,281 +1,218 @@
-<template>
-  <div class="min-h-screen bg-gradient-surface flex items-center justify-center p-4 relative">
-    <!-- Background Elements -->
-    <div class="absolute inset-0 bg-gradient-hero opacity-5"></div>
-    <div class="absolute top-0 right-0 -translate-y-12 translate-x-12">
-      <div class="h-96 w-96 rounded-full bg-gradient-primary opacity-10 blur-3xl"></div>
-    </div>
-
-    <div class="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center relative">
-      <!-- Left Side -->
-      <div class="hidden lg:block space-y-8">
-        <div>
-          <div class="flex items-center space-x-2 mb-6">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-primary">
-              <Building2 class="h-6 w-6 text-white" />
-            </div>
-            <span class="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              OnePG Payout
-            </span>
-          </div>
-          <h1 class="text-4xl font-bold mb-4">
-            Payouts made simple for
-            <span class="bg-gradient-primary bg-clip-text text-transparent"> growing businesses</span>
-          </h1>
-          <p class="text-lg text-muted-foreground">
-            Join thousands of businesses using OnePG Payout for their payment infrastructure.
-          </p>
-        </div>
-
-        <div class="space-y-6">
-          <div
-            v-for="(feature, index) in features"
-            :key="index"
-            class="flex items-start space-x-4"
-          >
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 flex-shrink-0">
-              <component :is="feature.icon" class="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h3 class="font-semibold mb-1">{{ feature.title }}</h3>
-              <p class="text-sm text-muted-foreground">{{ feature.description }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Side -->
-      <Card class="w-full max-w-md mx-auto bg-card/80 backdrop-blur-xl shadow-2xl border-0">
-        <CardHeader class="text-center">
-          <div class="flex lg:hidden items-center justify-center space-x-2 mb-4">
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
-              <Building2 class="h-5 w-5 text-white" />
-            </div>
-            <span class="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              OnePG Payout
-            </span>
-          </div>
-          <CardTitle>Welcome back</CardTitle>
-          <CardDescription>Sign in to your account or create a new one</CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <Tabs v-model="activeTab" class="w-full">
-            <TabsList class="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-
-            <!-- LOGIN TAB -->
-            <TabsContent value="login">
-              <form @submit.prevent="handleLogin" class="space-y-4">
-                <div class="space-y-2 text-left">
-                  <Label for="email">Email</Label>
-                  <div class="relative">
-                    <Mail class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input v-model="login.email" id="email" type="email" placeholder="you@company.com" class="pl-10" required />
-                  </div>
-                </div>
-
-                <div class="space-y-2 text-left">
-                  <Label for="password">Password</Label>
-                  <div class="relative">
-                    <Lock class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      v-model="login.password"
-                      :type="showPassword ? 'text' : 'password'"
-                      placeholder="Enter your password"
-                      class="pl-10 pr-10"
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      class="absolute right-0 top-0 h-full px-3"
-                      @click="showPassword = !showPassword"
-                    >
-                      <component :is="showPassword ? EyeOff : Eye" class="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-2">
-                    <Checkbox id="remember" />
-                    <Label for="remember" class="text-sm">Remember me</Label>
-                  </div>
-                  <a href="#" class="text-sm text-primary hover:underline">Forgot password?</a>
-                </div>
-
-                <Button type="submit" class="w-full flex justify-center items-center group" :disabled="isLoading">
-                  {{ isLoading ? 'Signing in...' : 'Sign In' }}
-                  <ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </form>
-            </TabsContent>
-
-            <!-- SIGNUP TAB -->
-            <TabsContent value="signup">
-              <form @submit.prevent="handleSignup" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="space-y-2 text-left">
-                    <Label for="firstName">First Name</Label>
-                    <Input v-model="signup.firstName" id="firstName" placeholder="John" required />
-                  </div>
-                  <div class="space-y-2 text-left">
-                    <Label for="lastName">Last Name</Label>
-                    <Input v-model="signup.lastName" id="lastName" placeholder="Doe" required />
-                  </div>
-                </div>
-
-                <div class="space-y-2 text-left">
-                  <Label for="company">Company Name</Label>
-                  <Input v-model="signup.company" id="company" placeholder="Acme Inc." required />
-                </div>
-
-                <div class="space-y-2 text-left">
-                  <Label for="signupEmail">Email</Label>
-                  <div class="relative">
-                    <Mail class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input v-model="signup.email" type="email" placeholder="you@company.com" class="pl-10" required />
-                  </div>
-                </div>
-
-                <div class="space-y-2 text-left">
-                  <Label for="signupPassword">Password</Label>
-                  <div class="relative">
-                    <Lock class="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      v-model="signup.password"
-                      :type="showPassword ? 'text' : 'password'"
-                      placeholder="Create a strong password"
-                      class="pl-10 pr-10"
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      class="absolute right-0 top-0 h-full px-3"
-                      @click="showPassword = !showPassword"
-                    >
-                      <component :is="showPassword ? EyeOff : Eye" class="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div class="flex items-start space-x-2">
-                  <Checkbox id="terms" required />
-                  <Label for="terms" class="text-sm leading-5">
-                    I agree to the
-                    <a href="/legal/terms" class="text-primary hover:underline">Terms & Conditions</a>
-                    and
-                    <a href="/legal/privacy" class="text-primary hover:underline">Privacy Policy</a>
-                  </Label>
-                </div>
-
-                <Button type="submit" class="w-full flex justify-center items-center group" :disabled="isLoading">
-                  {{ isLoading ? 'Creating Account...' : 'Create Account' }}
-                  <ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-
-          <div class="mt-6 text-center text-sm text-muted-foreground">
-            Need help? Contact our
-            <a href="/support" class="text-primary hover:underline">support team</a>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { ref } from "vue";
-
-// Lucide icons (installed via lucide-vue-next)
-import {
-  Building2,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  Shield,
-  Users,
-  Zap,
-} from "lucide-vue-next";
-
-// shadcn-vue components (import each from its file)
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-
+// import { GlassCard } from "@/components/GlassCard";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "../hooks/use-toast"; // or wherever your toast is
+import { useAuthStore } from "@/stores/auth"; // or wherever your auth composable is
+import axios from "../axios";
+const isLogin = ref(true);
+const email = ref("");
+const password = ref("");
+const confirmPassword = ref("");
 const showPassword = ref(false);
-const isLoading = ref(false);
-const activeTab = ref("login");
+const loading = ref(false);
 
-const login = ref({
-  email: "",
-  password: "",
-});
+const auth = useAuthStore();
+const { toast } = useToast();
+const router = useRouter();
+const result = ref(null);
+const handleDemoLogin = async () => {
+  const demoEmail = "";
+  const demoPassword = "";
+  // const demoEmail = "needythings.store@gmail.com";
+  // const demoPassword = "needythings.store@gmail.com";
 
-const signup = ref({
-  firstName: "",
-  lastName: "",
-  company: "",
-  email: "",
-  password: "",
-});
-
-const features = [
-  {
-    icon: Shield,
-    title: "Bank-grade Security",
-    description: "Your data is protected with enterprise-level encryption",
-  },
-  {
-    icon: Users,
-    title: "Team Management",
-    description: "Add team members with role-based access control",
-  },
-  {
-    icon: Zap,
-    title: "Instant Processing",
-    description: "Process payouts in real-time with 99.9% uptime",
-  },
-];
-
-const handleLogin = async () => {
-  isLoading.value = true;
-  setTimeout(() => {
-    isLoading.value = false;
-    window.location.href = "/";
-  }, 2000);
+  if (email.value === demoEmail && password.value === demoPassword) {
+    // Demo user ko directly set kar do
+    auth.user = {
+      name: "Demo User",
+      email: demoEmail,
+    };
+    auth.accessToken = "demo-token"; // optional, fake token
+    toast({
+      title: "Demo Login Success",
+      description: "You are now logged in as demo user.",
+    });
+    router.push("/app");
+  } else {
+    toast({
+      title: "Demo Login Failed",
+      description: "Invalid demo credentials",
+      variant: "destructive",
+    });
+  }
 };
 
-const handleSignup = async () => {
-  isLoading.value = true;
-  setTimeout(() => {
-    isLoading.value = false;
-    window.location.href = "/onboarding";
-  }, 2000);
+
+const handleSubmit = async () => {
+  loading.value = true;
+
+  try {
+    if (!isLogin.value) {
+      // Sign up validations
+      if (password.value !== confirmPassword.value) {
+        toast({ title: "Error", description: "Passwords do not match", variant: "destructive" });
+        return;
+      }
+      if (password.value.length < 6) {
+        toast({ title: "Error", description: "Password must be at least 6 characters", variant: "destructive" });
+        return;
+      }
+
+      const { error } = await auth.signUp(email.value, password.value);
+      if (error) {
+        toast({ title: "Sign Up Failed", description: error.message, variant: "destructive" });
+        return;
+      }
+
+      toast({ title: "Account created", description: "Continue onboarding to set up your account" });
+      router.push("/onboarding");
+    } else {
+      // Login
+      const { error } = await auth.login(email.value, password.value);
+      if (error) {
+        toast({ title: "Sign in failed", description: error.message || "Please check credentials", variant: "destructive" });
+        return;
+      }
+      toast({ title: "Signed in", description: "Welcome back! Redirecting..." });
+      router.push("/app");
+    }
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
+
+<template>
+  <div
+    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4"
+    role="main" aria-label="Authentication page">
+    <div class="w-full max-w-md space-y-8">
+      <!-- Header -->
+      <header class="text-center">
+        <router-link to="/payment" class="inline-block mb-8" aria-label="Go back to homepage">
+          <div class="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">OnePG</div>
+        </router-link>
+        <h1 class="text-3xl font-bold" id="auth-title">{{ isLogin ? "Welcome Back" : "Create Account" }}</h1>
+        <p class="text-muted-foreground mt-2" id="auth-description">
+          {{ isLogin ? "Sign in to your merchant account" : "Start your merchant verification journey" }}
+        </p>
+      </header>
+
+      <!-- Auth Form -->
+      <Card class="p-8">
+        <form @submit.prevent="handleSubmit" class="space-y-6" role="form" :aria-labelledby="'auth-title'"
+          :aria-describedby="'auth-description'">
+          <fieldset class="space-y-4">
+            <legend class="sr-only">{{ isLogin ? "Sign in credentials" : "Account creation details" }}</legend>
+
+            <!-- Email -->
+            <div>
+              <Label for="email" class="flex items-center gap-2">
+                <Mail class="h-4 w-4" aria-hidden="true" /> Email Address
+              </Label>
+              <Input id="email" type="email" v-model="email" placeholder="Enter your email" required class="mt-1"
+                :aria-describedby="!email ? 'email-hint' : undefined" autocomplete="email" />
+              <p v-if="!email" id="email-hint" class="sr-only">Please enter a valid email address</p>
+            </div>
+
+            <!-- Password -->
+            <div>
+              <Label for="password" class="flex items-center gap-2">
+                <Lock class="h-4 w-4" aria-hidden="true" /> Password
+              </Label>
+              <div class="relative mt-1">
+                <Input id="password" :type="showPassword ? 'text' : 'password'" v-model="password"
+                  placeholder="Enter your password" required minlength="6"
+                  :autocomplete="isLogin ? 'current-password' : 'new-password'"
+                  aria-describedby="password-visibility" />
+                <Button type="button" variant="ghost" size="sm"
+                  class="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  @click="showPassword = !showPassword" :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  id="password-visibility">
+                  <component :is="showPassword ? EyeOff : Eye" class="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div v-if="!isLogin">
+              <Label for="confirmPassword">Confirm Password</Label>
+              <Input id="confirmPassword" :type="showPassword ? 'text' : 'password'" v-model="confirmPassword"
+                placeholder="Confirm your password" required minlength="6" class="mt-1" autocomplete="new-password"
+                aria-describedby="confirm-password-hint" />
+              <p id="confirm-password-hint" class="sr-only">Re-enter your password to confirm it matches</p>
+            </div>
+          </fieldset>
+
+          <!-- Submit -->
+          <Button type="submit" class="w-full" size="lg" :disabled="loading"
+            :aria-describedby="loading ? 'loading-status' : undefined">
+            <template v-if="loading">
+              <Loader2 class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+              <span id="loading-status" aria-live="polite">{{ isLogin ? "Signing In..." : "Creating Account..."
+              }}</span>
+            </template>
+            <template v-else>
+              <User class="mr-2 h-4 w-4" aria-hidden="true" />
+              {{ isLogin ? "Sign In" : "Create Account" }}
+            </template>
+          </Button>
+
+          <!-- Demo Login -->
+          <Button v-if="isLogin" type="button" variant="outline" class="w-full" size="lg" :disabled="loading"
+            @click="handleDemoLogin" aria-label="Sign in with demo account" aria-describedby="demo-login-info">
+            <User class="mr-2 h-4 w-4" aria-hidden="true" /> Demo Login
+          </Button>
+          <div v-if="isLogin" id="demo-login-info" class="text-xs text-muted-foreground text-center mt-2">
+            <p class="sr-only">Demo account credentials: Email and password are both needythings.store@gmail.com</p>
+            <p aria-hidden="true" class="opacity-75">Quick demo access available</p>
+          </div>
+        </form>
+
+        <!-- Switch Auth Mode -->
+        <div class="mt-6 text-center">
+          <p class="text-sm text-muted-foreground">
+            {{ isLogin ? "Don't have an account? " : "Already have an account? " }}
+
+            <RouterLink :to="isLogin ? '/onboarding' : '/login'">
+              <Button variant="link" class="p-0 h-auto font-semibold text-primary">
+                {{ isLogin ? "Sign up" : "Sign in" }}
+              </Button>
+            </RouterLink>
+          </p>
+        </div>
+      </Card>
+
+      <!-- Email Verification Notice -->
+      <div v-if="!isLogin" role="complementary" aria-label="Email verification information">
+        <Card class="p-4">
+          <div class="flex items-start gap-3">
+            <Mail class="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
+            <div class="text-sm">
+              <h2 class="font-medium mb-1">Email Verification Required</h2>
+              <p class="text-muted-foreground">
+                After creating your account, you'll receive a verification email. Please click the link to verify your
+                email
+                before signing in.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <!-- Security Badge -->
+      <div class="flex justify-center" role="complementary" aria-label="Security information">
+        <Badge variant="outline" class="text-xs">
+          <Lock class="h-3 w-3 mr-1" aria-hidden="true" /> 256-bit SSL Encrypted
+        </Badge>
+      </div>
+    </div>
+  </div>
+</template>
