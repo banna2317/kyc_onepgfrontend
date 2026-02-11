@@ -90,7 +90,7 @@ const clearAll = () => {
     <DropdownMenuTrigger as-child>
       <Button variant="outline" class="gap-2">
         Search & Filter
-        <span>⌄</span>
+        <!-- <span>⌄</span> -->
       </Button>
     </DropdownMenuTrigger>
 

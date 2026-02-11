@@ -689,7 +689,7 @@ const handleFilter = async (filters: {
                 </div>
             </DialogContent>
         </Dialog>
-        <div class="flex flex-col gap-6">
+        <div v-if="totalRecords > perPage" class="flex flex-col gap-6">
             <AppPagination :total="totalRecords" :items-per-page="perPage" @change="getrecords" />
         </div>
     </div>

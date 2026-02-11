@@ -50,6 +50,7 @@ const step4Schema = z.object({
 const router = useRouter();
 const currentStep = ref(1);
 const isLoading = ref(false);
+const isLoading1 = ref(false);
 const userdetail = ref(null);
 // OTP & Verification States
 const otpSent = ref(false);
@@ -198,6 +199,7 @@ const sendEmailOTP = async () => {
 
     } finally {
         isLoading.value = false;
+        isLoading1.value = false;
     }
 };
 
@@ -208,7 +210,7 @@ async function verifyEmailOTP() {
 
 
         try {
-
+            isLoading.value = true;
 
             const response = await axios.post("/submit-email-otp", {
                 email: form1.email,
@@ -236,6 +238,24 @@ async function verifyEmailOTP() {
             }
 
         } catch (err) {
+            let message = "Something went wrong. Please try again.";
+
+            if (err.response) {
+                // backend se error
+                message = err.response.data.message || message;
+            } else if (err.request) {
+                // request gaya but response nahi aaya
+                message = "Server not responding. Please try later.";
+            } else {
+                // JS / network error
+                message = err.message;
+            }
+
+            toast({
+                title: "Error",
+                description: message,
+                variant: "destructive",
+            });
 
         } finally {
             isLoading.value = false;
@@ -323,6 +343,7 @@ const sendOTP = async () => {
 
     } finally {
         isLoading.value = false;
+        isLoading1.value = false;
     }
 
 
@@ -1055,8 +1076,16 @@ const verifydocuments = async () => {
     }
 };
 
-
-
+const resendEmailOTP = async () => {
+    form1.emailOtp = ""; // clear old OTP
+    isLoading1.value = true;
+    await sendEmailOTP();
+};
+const resendOTP = async () => {
+    form1.otp = ""   // clear old otp
+     isLoading1.value = true;
+    await sendOTP()
+}
 onMounted(async () => {
     await getuser();
 
@@ -1508,17 +1537,31 @@ onMounted(async () => {
                     </div>
                     <div class="flex justify-end gap-2">
                         <button @click="otpDialogOpen = false"
-                            class="px-4 py-2 text-sm border rounded hover:bg-slate-100">Cancel</button>
+                            class="px-4 py-2 text-sm border rounded hover:bg-slate-100">
+                            Cancel
+                        </button>
+
+                        <!-- Send OTP -->
                         <button v-if="!otpSent" @click="sendOTP"
                             class="px-4 py-2 text-sm bg-black text-white rounded hover:bg-slate-800 disabled:opacity-50"
                             :disabled="isLoading">
                             {{ isLoading ? "Sending..." : "Send OTP" }}
                         </button>
-                        <button v-else @click="verifyPhoneOTP"
-                            class="px-4 py-2 text-sm bg-black text-white rounded hover:bg-slate-800 disabled:opacity-50"
-                            :disabled="!form1.otp">
-                            Verify OTP
-                        </button>
+
+                        <!-- Verify + Resend -->
+                        <template v-else> 
+                            <button @click="verifyPhoneOTP" :disabled="!form1.otp || isLoading"
+                                class="px-4 py-2 text-sm bg-black text-white rounded hover:bg-slate-800 disabled:opacity-50"
+                                >
+                                  {{ isLoading ? "Verify OTP..." : "Verify OTP" }}
+                            </button>
+
+                            <button @click="resendOTP"   :disabled="isLoading1"
+                                class="px-4 py-2 text-sm border rounded hover:bg-slate-100 disabled:opacity-50">
+                               
+                                    {{ isLoading1 ? "Sending..." : "Resend OTP" }}
+                            </button>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -1546,17 +1589,30 @@ onMounted(async () => {
                     </div>
                     <div class="flex justify-end gap-2">
                         <button @click="emailOtpDialogOpen = false"
-                            class="px-4 py-2 text-sm border rounded hover:bg-slate-100">Cancel</button>
+                            class="px-4 py-2 text-sm border rounded hover:bg-slate-100">
+                            Cancel
+                        </button>
+
+                        <!-- Send OTP -->
                         <button v-if="!emailOtpSent" @click="sendEmailOTP"
                             class="px-4 py-2 text-sm bg-black text-white rounded hover:bg-slate-800 disabled:opacity-50"
                             :disabled="isLoading">
                             {{ isLoading ? "Sending..." : "Send OTP" }}
                         </button>
-                        <button v-else @click="verifyEmailOTP"
-                            class="px-4 py-2 text-sm bg-black text-white rounded hover:bg-slate-800 disabled:opacity-50"
-                            :disabled="!form1.emailOtp">
-                            Verify OTP
-                        </button>
+
+                        <!-- Verify + Resend -->
+                        <template v-else>
+                            <button @click="verifyEmailOTP"
+                                class="px-4 py-2 text-sm bg-black text-white rounded hover:bg-slate-800 disabled:opacity-50"
+                                :disabled="!form1.emailOtp || isLoading">
+                                {{ isLoading ? "Sending..." : "Verify OTP" }}
+                            </button>
+
+                            <button @click="resendEmailOTP" class="px-4 py-2 text-sm border rounded hover:bg-slate-100"
+                                :disabled="isLoading1">
+                                {{ isLoading1 ? "Sending..." : "Resend OTP" }}
+                            </button>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -1696,7 +1752,8 @@ onMounted(async () => {
                         <button @click="bankDialogOpen = false"
                             class="px-4 py-2 text-sm border rounded hover:bg-slate-100">Cancel</button>
                         <button @click="verifyBank"
-                            :disabled="!form3.accountHolderName || !form3.ifscCode || !form3.accountNumber || isLoading" class="px-4 py-2 text-sm bg-black text-white rounded
+                            :disabled="!form3.accountHolderName || !form3.ifscCode || !form3.accountNumber || isLoading"
+                            class="px-4 py-2 text-sm bg-black text-white rounded
                  hover:bg-slate-800 disabled:opacity-50">
                             <span v-if="isLoading"
                                 class="loader-border loader-border-white animate-spin w-4 h-4 rounded-full"></span>

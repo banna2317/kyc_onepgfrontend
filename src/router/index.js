@@ -119,34 +119,20 @@ let initialized = false;
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
-  const token = localStorage.getItem("auth_token");
-  let isVerified = false;
 
-  if (token) {
-    const response = await axios.post("/userinfo", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    isVerified = response.data.is_verified;
-    // console.log('user info response', response.data.is_verified);
-
-  }
-
-  if (!initialized) {
-    initialized = true;
+  if (authStore.loading) {
     await authStore.initAuth();
   }
-  console.log("Auth Store User:", authStore.user);
-  const isAuthenticated = !!authStore.user;
 
-  // if (to.meta.requiresAuth && !isAuthenticated && !isVerified) {
-  //   return next({ name: "login" });
-  // }
-
-  if (to.meta.requiresAuth && (!isAuthenticated || (to.meta.requiresVerification && !isVerified))) {
-    return next({ name: "login" }); // ya "verify-account"
+  if (
+    to.meta.requiresAuth &&
+    (!authStore.user ||
+      (to.meta.requiresVerification && !authStore.isVerified))
+  ) {
+    return next({ name: "login" });
   }
 
-  if (to.name === "login" && isAuthenticated && isVerified) {
+  if (to.name === "login" && authStore.user && authStore.isVerified) {
     return next({ name: "home" });
   }
 

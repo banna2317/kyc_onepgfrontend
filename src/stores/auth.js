@@ -7,19 +7,28 @@ export const useAuthStore = defineStore("auth", () => {
   const user = ref(null);
   const accessToken = ref(null);
   const loading = ref(true);
-
+  const isVerified = ref(false);
   /**
    * Initialize auth state from localStorage
    */
-  const initAuth = () => {
+  const initAuth = async () => {
     const rawUser = localStorage.getItem("auth_user");
     const token = localStorage.getItem("auth_token");
     if (rawUser && token) {
       try {
         user.value = JSON.parse(rawUser);
         accessToken.value = token;
+
+        const res = await axios.post("/userinfo", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        isVerified.value = res.data.is_verified;
+
       } catch (err) {
-        console.error("Failed to parse auth data:", err);
+        console.error("Auth init failed:", err);
+        user.value = null;
+        accessToken.value = null;
       }
     }
     loading.value = false;
@@ -37,28 +46,28 @@ export const useAuthStore = defineStore("auth", () => {
 
       user.value = res.data.user;
       accessToken.value = res.data.token;
-
+      isVerified.value = res.data.user?.is_verified ?? false;
       localStorage.setItem("auth_user", JSON.stringify(user.value));
       localStorage.setItem("auth_token", accessToken.value);
-
+      
       return { error: null };
     } catch (err) {
       return { error: err.response?.data || { message: "Login failed" } };
     }
   };
- 
+
   /**
    * Register / Sign up user
    */
   const signUp = async (name, email, phone_number, password) => {
-    console.log('sss',name, email, phone_number, password);
-    
+    console.log('sss', name, email, phone_number, password);
+
     try {
       console.log('parth');
-      
+
       const res = await axios.post("/register", { name, email, phone_number, password });
-      console.log('dhamo',res);
-      
+      console.log('dhamo', res);
+
       user.value = res.data.user;
       accessToken.value = res.data.token;
 
@@ -77,7 +86,7 @@ export const useAuthStore = defineStore("auth", () => {
   const signOut = async () => {
     try {
       if (accessToken.value) {
-        await api.post("/logout", {}, {
+        await axios.post("/logout", {}, {
           headers: { Authorization: `Bearer ${accessToken.value}` }
         });
       }
@@ -86,6 +95,7 @@ export const useAuthStore = defineStore("auth", () => {
     } finally {
       user.value = null;
       accessToken.value = null;
+      isVerified.value = false;
       localStorage.removeItem("auth_user");
       localStorage.removeItem("auth_token");
     }
@@ -101,6 +111,7 @@ export const useAuthStore = defineStore("auth", () => {
     user,
     accessToken,
     loading,
+    isVerified,
     initAuth,
     login,
     signUp,
