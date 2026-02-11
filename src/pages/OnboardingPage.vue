@@ -904,7 +904,7 @@ const verifyGSTIN = async () => {
 
 const getuserdetail = async () => {
     try {
-        const response = await axios.get("/getuserdetail");
+        const response = await axios.post("/getuserdetail");
         if (response.data.status === true) {
 
             currentStep.value = response.data.step;
@@ -936,7 +936,7 @@ const getuserdetail = async () => {
 };
 const getuser = async () => {
     try {
-        const response = await axios.get("/user");
+        const response = await axios.post("/user");
         if (response.data.status === true) {
             currentStep.value = 2;
         }

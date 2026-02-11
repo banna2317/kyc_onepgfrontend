@@ -39,8 +39,7 @@ export const useAuthStore = defineStore("auth", () => {
    */
   const login = async (email, password) => {
     try {
-      console.log('dsdds');
-
+    
       const res = await axios.post("/login", { email, password });
       console.log(res);
 
@@ -60,13 +59,12 @@ export const useAuthStore = defineStore("auth", () => {
    * Register / Sign up user
    */
   const signUp = async (name, email, phone_number, password) => {
-    console.log('sss', name, email, phone_number, password);
-
+   
     try {
-      console.log('parth');
+   
 
       const res = await axios.post("/register", { name, email, phone_number, password });
-      console.log('dhamo', res);
+    
 
       user.value = res.data.user;
       accessToken.value = res.data.token;

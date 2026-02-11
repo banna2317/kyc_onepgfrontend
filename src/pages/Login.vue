@@ -22,32 +22,7 @@ const auth = useAuthStore();
 const { toast } = useToast();
 const router = useRouter();
 const result = ref(null);
-const handleDemoLogin = async () => {
-  const demoEmail = "";
-  const demoPassword = "";
-  // const demoEmail = "needythings.store@gmail.com";
-  // const demoPassword = "needythings.store@gmail.com";
 
-  if (email.value === demoEmail && password.value === demoPassword) {
-    // Demo user ko directly set kar do
-    auth.user = {
-      name: "Demo User",
-      email: demoEmail,
-    };
-    auth.accessToken = "demo-token"; // optional, fake token
-    toast({
-      title: "Demo Login Success",
-      description: "You are now logged in as demo user.",
-    });
-    router.push("/app");
-  } else {
-    toast({
-      title: "Demo Login Failed",
-      description: "Invalid demo credentials",
-      variant: "destructive",
-    });
-  }
-};
 
 
 const handleSubmit = async () => {
@@ -165,11 +140,7 @@ const handleSubmit = async () => {
             </template>
           </Button>
 
-          <!-- Demo Login -->
-          <Button v-if="isLogin" type="button" variant="outline" class="w-full" size="lg" :disabled="loading"
-            @click="handleDemoLogin" aria-label="Sign in with demo account" aria-describedby="demo-login-info">
-            <User class="mr-2 h-4 w-4" aria-hidden="true" /> Demo Login
-          </Button>
+       
           <div v-if="isLogin" id="demo-login-info" class="text-xs text-muted-foreground text-center mt-2">
             <p class="sr-only">Demo account credentials: Email and password are both needythings.store@gmail.com</p>
             <p aria-hidden="true" class="opacity-75">Quick demo access available</p>
