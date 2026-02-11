@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted,watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { format } from "date-fns";
 import {
   TrendingUp,
@@ -69,8 +69,8 @@ async function getrecords() {
     // API call mein payload bhejein
     const response = await axios.post('/overviewdata', payload);
 
-    console.log('API',response);
-     if (response.data.status) {
+    console.log('API', response);
+    if (response.data.status) {
       const data = response.data.data;
 
       // Update wallet balance
@@ -147,6 +147,50 @@ onMounted(() => {
           </p>
         </div>
 
+        <div>
+            <div class="flex items-center justify-between">
+
+                <div class="p-1">
+                  <VueDatePicker v-model="date" range :enable-time-picker="false" auto-apply teleport="body"
+                    :z-index="9999" :preset-ranges="presetRanges">
+                    <template #trigger>
+                      <div
+                        class="flex items-center space-x-4 cursor-pointer hover:bg-gray-50 p-3 rounded-xl transition-all border border-gray-200 shadow-sm">
+                        <Calendar class="h-5 w-5 text-primary" />
+
+                        <div>
+                          <!-- ❌ Removed "Selected Period" -->
+
+                          <p class="text-sm font-semibold text-gray-700">
+                            <template v-if="date && date[0] && date[1]">
+                              {{ format(date[0], "MMM d, yyyy") }} - {{ format(date[1], "MMM d, yyyy") }}
+                            </template>
+                            <template v-else>
+                              {{ format(new Date(), "EEEE, MMMM do, yyyy") }}
+                            </template>
+                          </p>
+                        </div>
+
+                        <ChevronDown class="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </template>
+
+                    <template #left-sidebar>
+                      <div class="flex flex-col border-r border-gray-200 p-2 min-w-[140px] bg-white h-full">
+                        <button v-for="(p, index) in presetRanges" :key="index" @click="date = p.range"
+                          class="text-left px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors font-medium mb-1">
+                          {{ p.label }}
+                        </button>
+                      </div>
+                    </template>
+
+                  </VueDatePicker>
+                </div>
+
+              </div>
+
+        </div>
+
         <!-- RIGHT SIDE (Wallet Balance) -->
         <div class="flex md:block items-start md:items-end gap-2 md:gap-0">
           <div class="text-left md:text-right">
@@ -164,52 +208,7 @@ onMounted(() => {
 
 
       <!-- Date Section -->
-      <Card class="glass-card">
-        <CardContent class="pt-6">
-          <div class="flex items-center justify-between">
-            <!--  -->
 
-            <div class="p-5">
-              <VueDatePicker v-model="date" range :enable-time-picker="false" auto-apply teleport="body" :z-index="9999"
-                :preset-ranges="presetRanges">
-                <template #trigger>
-                  <div
-                    class="flex items-center space-x-4 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all border border-transparent hover:border-gray-200">
-                    <Calendar class="h-5 w-5 text-primary" />
-                    <div>
-                      <h3 class="font-semibold text-base sm:text-lg">
-                        {{ date ? 'Selected Period' : "Today's Activity" }}
-                      </h3>
-                      <p class="text-xs sm:text-sm text-muted-foreground">
-                        <template v-if="date && date[0] && date[1]">
-                          {{ format(date[0], "MMM d, yyyy") }} - {{ format(date[1], "MMM d, yyyy") }}
-                        </template>
-                        <template v-else>
-                          {{ format(new Date(), "EEEE, MMMM do, yyyy") }}
-                        </template>
-                      </p>
-                    </div>
-                    <ChevronDown class="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </template>
-
-                <template #left-sidebar>
-                  <div class="flex flex-col border-r border-gray-200 p-2 min-w-[140px] bg-white h-full">
-                    <button v-for="(p, index) in presetRanges" :key="index" @click="date = p.range"
-                      class="text-left px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors font-medium mb-1">
-                      {{ p.label }}
-                    </button>
-                  </div>
-                </template>
-              </VueDatePicker>
-            </div>
-
-
-          
-
-          </div>
-        </CardContent>
-      </Card>
     </div>
 
     <!-- KPI Cards Section -->

@@ -271,10 +271,7 @@ const handleSignOut = async () => {
           </DropdownMenu>
 
           <!-- Search -->
-          <div class="relative hidden md:block w-64">
-            <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search verifications, users..." class="pl-10 h-9" />
-          </div>
+       
         </div>
 
         <div class="flex items-center space-x-4">
