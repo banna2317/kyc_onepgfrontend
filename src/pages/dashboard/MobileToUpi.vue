@@ -212,22 +212,49 @@ const handleFilter = async (filters: {
                 <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">Bank Account Mobile Number To UPI
                 </h1>
 
-                <div class="flex flex-col sm:flex-row sm:items-center gap-1 mt-2">
+                <div class="flex flex-col md:flex-row md:items-center gap-1 mt-2">
                     <p class="text-sm sm:text-base text-muted-foreground">
-                        Bank account details and the verification statuses are shown here.
+                        Bank account details and the verification statuses are shown here. <Button variant="link"
+                            class="p-0 h-auto text-blue-600 hover:text-blue-800 whitespace-nowrap">
+                            <ExternalLink class="h-3 w-3 mr-1" />
+                            Know more
+                        </Button>
                     </p>
 
-                    <Button variant="link" class="p-0 h-auto text-blue-600 hover:text-blue-800">
-                        <ExternalLink class="h-3 w-3 mr-1" />
-                        Know more
-                    </Button>
+               
                 </div>
             </div>
 
-            <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700 w-full md:w-auto">
-                Chek UPI ID
-            </Button>
+            <div class="flex items-center gap-4  md:ml-auto flex-wrap">
+                <FilterDropdown :search-options="[
+                    { label: 'License Number', value: 'license_number' },
+                    { label: 'Verification ID', value: 'verification_id' }
+                ]" @apply="handleFilter" />
+
+                <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700">
+                    Chek UPI ID
+                </Button>
+            </div>
+
+
         </div>
+        <div v-if="appliedFilters" class="flex flex-wrap gap-2 mt-3 text-sm">
+            <span class="px-2 py-1 bg-gray-100 rounded">
+                Search By:
+                <b>{{ appliedFilters.searchType }}</b>
+            </span>
+
+            <span v-if="appliedFilters.searchValue" class="px-2 py-1 bg-gray-100 rounded">
+                Value:
+                <b>{{ appliedFilters.searchValue }}</b>
+            </span>
+
+            <span v-if="appliedFilters.statuses.length" class="px-2 py-1 bg-gray-100 rounded">
+                Status:
+                <b>{{ appliedFilters.statuses.join(', ') }}</b>
+            </span>
+        </div>
+
 
 
         <!-- Tabs -->
@@ -246,30 +273,6 @@ const handleFilter = async (filters: {
             <!-- All Tab -->
             <TabsContent value="all" class="space-y-4">
                 <!-- Filters -->
-                <div class="flex items-center gap-4">
-
-                    <div v-if="appliedFilters" class="flex flex-wrap gap-2 mb-3 text-sm">
-                        <span class="px-2 py-1 bg-gray-100 rounded">
-                            Search By:
-                            <b>{{ appliedFilters.searchType }}</b>
-                        </span>
-
-                        <span v-if="appliedFilters.searchValue" class="px-2 py-1 bg-gray-100 rounded">
-                            Value:
-                            <b>{{ appliedFilters.searchValue }}</b>
-                        </span>
-
-                        <span v-if="appliedFilters.statuses.length" class="px-2 py-1 bg-gray-100 rounded">
-                            Status:
-                            <b>{{ appliedFilters.statuses.join(', ') }}</b>
-                        </span>
-                    </div>
-
-                    <FilterDropdown :search-options="[
-                        { label: 'Phone Number', value: 'phone_number' },
-                        { label: 'Verification ID', value: 'verification_id' }
-                    ]" @apply="handleFilter" />
-                </div>
 
                 <!-- Table -->
                 <Card>
@@ -470,7 +473,7 @@ const handleFilter = async (filters: {
             </DialogContent>
         </Dialog>
 
-        <div  v-if="totalRecords > perPage" class="flex flex-col gap-6">
+        <div v-if="totalRecords > perPage" class="flex flex-col gap-6">
             <AppPagination :total="totalRecords" :items-per-page="perPage" @change="getrecords" />
         </div>
 

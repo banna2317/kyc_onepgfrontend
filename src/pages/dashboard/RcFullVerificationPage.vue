@@ -108,10 +108,10 @@ async function getrecords(page = 1) {
     try {
 
         const response = await axios.post(`/rc-full-records?page=${page}`, {
-                search_type: appliedFilters.value?.searchType || "",
-                search_value: appliedFilters.value?.searchValue || "",
-                statuses: appliedFilters.value?.statuses || [],
-            });
+            search_type: appliedFilters.value?.searchType || "",
+            search_value: appliedFilters.value?.searchValue || "",
+            statuses: appliedFilters.value?.statuses || [],
+        });
         const res = response.data.data;
         allRecords.value = res.data;
         totalRecords.value = res.total;
@@ -196,44 +196,45 @@ const handleFilter = async (filters: {
 
                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 mt-2">
                     <p class="text-sm sm:text-base text-muted-foreground">
-                        Verify RC Book.
+                        Verify RC Book. <Button variant="link" class="p-0 h-auto text-blue-600 hover:text-blue-800">
+                            <ExternalLink class="h-3 w-3 mr-1" />
+                            Know more
+                        </Button>
                     </p>
-
-                    <Button variant="link" class="p-0 h-auto text-blue-600 hover:text-blue-800">
-                        <ExternalLink class="h-3 w-3 mr-1" />
-                        Know more
-                    </Button>
                 </div>
             </div>
 
-            <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700 w-full md:w-auto">
-                Verify RC
-            </Button>
+            <div class="flex items-center gap-4  md:ml-auto flex-wrap">
+                <FilterDropdown :search-options="[
+                    { label: 'RC Number', value: 'rc_number' },
+                    { label: 'Verification ID', value: 'verification_id' }
+                ]" @apply="handleFilter" />
+
+                <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700">
+                    Verify RC
+                </Button>
+            </div>
+
         </div>
 
-        
-        <div class="flex items-center gap-4">
-            <FilterDropdown :search-options="[
-                { label: 'RC Number', value: 'rc_number' },
-                { label: 'Verification ID', value: 'verification_id' }
-            ]" @apply="handleFilter" />
 
-            <div v-if="appliedFilters" class="flex flex-wrap gap-2 mb-3 text-sm">
-                <span class="px-2 py-1 bg-gray-100 rounded">
-                    Search By:
-                    <b>{{ appliedFilters.searchType }}</b>
-                </span>
 
-                <span v-if="appliedFilters.searchValue" class="px-2 py-1 bg-gray-100 rounded">
-                    Value:
-                    <b>{{ appliedFilters.searchValue }}</b>
-                </span>
+        <div v-if="appliedFilters" class="flex flex-wrap gap-2 mb-3 text-sm">
+            <span class="px-2 py-1 bg-gray-100 rounded">
+                Search By:
+                <b>{{ appliedFilters.searchType }}</b>
+            </span>
 
-                <span v-if="appliedFilters.statuses.length" class="px-2 py-1 bg-gray-100 rounded">
-                    Status:
-                    <b>{{ appliedFilters.statuses.join(', ') }}</b>
-                </span>
-            </div>
+            <span v-if="appliedFilters.searchValue" class="px-2 py-1 bg-gray-100 rounded">
+                Value:
+                <b>{{ appliedFilters.searchValue }}</b>
+            </span>
+
+            <span v-if="appliedFilters.statuses.length" class="px-2 py-1 bg-gray-100 rounded">
+                Status:
+                <b>{{ appliedFilters.statuses.join(', ') }}</b>
+            </span>
+
         </div>
 
         <!-- Tabs -->

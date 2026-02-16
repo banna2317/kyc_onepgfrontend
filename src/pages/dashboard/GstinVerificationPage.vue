@@ -186,7 +186,7 @@ const handleFilter = async (filters: {
                 <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">GSTIN Number
                     Verification</h1>
 
-                <div class="flex flex-col sm:flex-row sm:items-center gap-1 mt-2">
+                <div class="flex items-center gap-1 mt-2 whitespace-nowrap">
                     <p class="text-sm sm:text-base text-muted-foreground">
                         Verify GSTIN.
                     </p>
@@ -198,33 +198,33 @@ const handleFilter = async (filters: {
                 </div>
             </div>
 
-            <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700 w-full md:w-auto">
-                Verify GST
-            </Button>
+            <div class="flex items-center gap-4  md:ml-auto flex-wrap">
+                <FilterDropdown :search-options="[
+                    { label: 'GSTIN Number', value: 'gstin' },
+                    { label: 'Verification ID', value: 'verification_id' }
+                ]" @apply="handleFilter" />
+
+                <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700">
+                    Verify GST
+                </Button>
+            </div>
         </div>
 
-        <div class="flex items-center gap-4">
-            <FilterDropdown :search-options="[
-                { label: 'GSTIN Number', value: 'gstin' },
-                { label: 'Verification ID', value: 'verification_id' }
-            ]" @apply="handleFilter" />
+        <div v-if="appliedFilters" class="flex flex-wrap gap-2 mt-3 text-sm">
+            <span class="px-2 py-1 bg-gray-100 rounded">
+                Search By:
+                <b>{{ appliedFilters.searchType }}</b>
+            </span>
 
-            <div v-if="appliedFilters" class="flex flex-wrap gap-2 mb-3 text-sm">
-                <span class="px-2 py-1 bg-gray-100 rounded">
-                    Search By:
-                    <b>{{ appliedFilters.searchType }}</b>
-                </span>
+            <span v-if="appliedFilters.searchValue" class="px-2 py-1 bg-gray-100 rounded">
+                Value:
+                <b>{{ appliedFilters.searchValue }}</b>
+            </span>
 
-                <span v-if="appliedFilters.searchValue" class="px-2 py-1 bg-gray-100 rounded">
-                    Value:
-                    <b>{{ appliedFilters.searchValue }}</b>
-                </span>
-
-                <span v-if="appliedFilters.statuses.length" class="px-2 py-1 bg-gray-100 rounded">
-                    Status:
-                    <b>{{ appliedFilters.statuses.join(', ') }}</b>
-                </span>
-            </div>
+            <span v-if="appliedFilters.statuses.length" class="px-2 py-1 bg-gray-100 rounded">
+                Status:
+                <b>{{ appliedFilters.statuses.join(', ') }}</b>
+            </span>
         </div>
         <!-- Tabs -->
         <Tabs default-value="records">
@@ -510,7 +510,7 @@ const handleFilter = async (filters: {
 
             </DialogContent>
         </Dialog>
-        <div  v-if="totalRecords > perPage" class="flex flex-col gap-6">
+        <div v-if="totalRecords > perPage" class="flex flex-col gap-6">
             <AppPagination :total="totalRecords" :items-per-page="perPage" @change="getrecords" />
         </div>
     </div>

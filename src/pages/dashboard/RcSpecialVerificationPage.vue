@@ -200,27 +200,28 @@ const handleFilter = async (filters: {
 
                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 mt-2">
                     <p class="text-sm sm:text-base text-muted-foreground">
-                        Verify RC Special.
+                        Verify RC Special. <Button variant="link" class="p-0 h-auto text-blue-600 hover:text-blue-800">
+                            <ExternalLink class="h-3 w-3 mr-1" />
+                            Know more
+                        </Button>
                     </p>
 
-                    <Button variant="link" class="p-0 h-auto text-blue-600 hover:text-blue-800">
-                        <ExternalLink class="h-3 w-3 mr-1" />
-                        Know more
-                    </Button>
+
                 </div>
             </div>
 
-            <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700 w-full md:w-auto">
-                Verify RC
-            </Button>
-        </div>
-
-        <div class="flex items-center gap-4">
-            <FilterDropdown :search-options="[
+            <div class="flex items-center gap-4  md:ml-auto flex-wrap">
+               <FilterDropdown :search-options="[
                 { label: 'RC Number', value: 'rc_number' },
                 { label: 'Verification ID', value: 'verification_id' }
             ]" @apply="handleFilter" />
 
+                <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700">
+                    Verify RC
+                </Button>
+            </div>
+
+        </div>
             <div v-if="appliedFilters" class="flex flex-wrap gap-2 mb-3 text-sm">
                 <span class="px-2 py-1 bg-gray-100 rounded">
                     Search By:
@@ -237,7 +238,7 @@ const handleFilter = async (filters: {
                     <b>{{ appliedFilters.statuses.join(', ') }}</b>
                 </span>
             </div>
-        </div>
+       
 
         <!-- Tabs -->
         <Tabs default-value="records">

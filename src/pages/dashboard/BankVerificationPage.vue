@@ -58,9 +58,9 @@ const currentPage = ref(1);
 const totalRecords = ref(0);
 const perPage = 5;
 const appliedFilters = ref<{
-    searchType: string
-    searchValue: string
-    statuses: string[]
+  searchType: string
+  searchValue: string
+  statuses: string[]
 } | null>(null);
 const formData = ref({
   accountNumber: "",
@@ -82,10 +82,10 @@ const filteredRecords = computed(() =>
 async function getrecords(page = 1) {
   try {
     const response = await axios.post(`/bank-account-records?page=${page}`, {
-            search_type: appliedFilters.value?.searchType || "",
-            search_value: appliedFilters.value?.searchValue || "",
-            statuses: appliedFilters.value?.statuses || [],
-        });
+      search_type: appliedFilters.value?.searchType || "",
+      search_value: appliedFilters.value?.searchValue || "",
+      statuses: appliedFilters.value?.statuses || [],
+    });
     const res = response.data.data;
 
     totalRecords.value = res.total;
@@ -289,21 +289,48 @@ const handleFilter = async (filters: {
       <div>
         <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">Bank Account</h1>
 
-        <div class="flex flex-col sm:flex-row sm:items-center gap-1 mt-2">
+        <div class="flex flex-col md:flex-row md:items-center gap-1 mt-2">
           <p class="text-sm sm:text-base text-muted-foreground">
-            Bank account details and the verification statuses are shown here.
-          </p>
-
-          <Button variant="link" class="p-0 h-auto text-blue-600 hover:text-blue-800">
+              Verify bank accounts. <Button variant="link" class="p-0 h-auto text-blue-600 hover:text-blue-800 whitespace-nowrap">
             <ExternalLink class="h-3 w-3 mr-1" />
             Know more
           </Button>
+          </p>
+
+         
         </div>
+
       </div>
 
-      <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700 w-full md:w-auto">
-        Verify Bank Account
-      </Button>
+      <div class="flex items-center gap-4  md:ml-auto flex-wrap">
+        <FilterDropdown :search-options="[
+          { label: 'Bank A/c Number', value: 'account_number' },
+          { label: 'Verification ID', value: 'verification_id' }
+        ]" @apply="handleFilter" />
+
+        <Button @click="isDialogOpen = true" class="bg-purple-600 hover:bg-purple-700">
+          Verify Bank Account
+        </Button>
+      </div>
+
+
+    </div>
+
+    <div v-if="appliedFilters" class="flex flex-wrap gap-2 mt-3 text-sm">
+      <span class="px-2 py-1 bg-gray-100 rounded">
+        Search By:
+        <b>{{ appliedFilters.searchType }}</b>
+      </span>
+
+      <span v-if="appliedFilters.searchValue" class="px-2 py-1 bg-gray-100 rounded">
+        Value:
+        <b>{{ appliedFilters.searchValue }}</b>
+      </span>
+
+      <span v-if="appliedFilters.statuses.length" class="px-2 py-1 bg-gray-100 rounded">
+        Status:
+        <b>{{ appliedFilters.statuses.join(', ') }}</b>
+      </span>
     </div>
 
 
@@ -323,32 +350,7 @@ const handleFilter = async (filters: {
       <!-- All Tab -->
       <TabsContent value="all" class="space-y-4">
         <!-- Filters -->
-        <div class="flex items-center gap-4">
 
-
-            <div v-if="appliedFilters" class="flex flex-wrap gap-2 mb-3 text-sm">
-                        <span class="px-2 py-1 bg-gray-100 rounded">
-                            Search By:
-                            <b>{{ appliedFilters.searchType }}</b>
-                        </span>
-
-                        <span v-if="appliedFilters.searchValue" class="px-2 py-1 bg-gray-100 rounded">
-                            Value:
-                            <b>{{ appliedFilters.searchValue }}</b>
-                        </span>
-
-                        <span v-if="appliedFilters.statuses.length" class="px-2 py-1 bg-gray-100 rounded">
-                            Status:
-                            <b>{{ appliedFilters.statuses.join(', ') }}</b>
-                        </span>
-                    </div>
-
-          <FilterDropdown :search-options="[
-            { label: 'Bank A/c Number', value: 'account_number' },
-            { label: 'Verification ID', value: 'verification_id' }
-          ]" @apply="handleFilter" />
-
-        </div>
         <!-- Table -->
         <Card>
           <CardContent class="p-0">
@@ -528,7 +530,7 @@ const handleFilter = async (filters: {
         </div>
       </DialogContent>
     </Dialog>
-    <div  v-if="totalRecords > perPage" class="flex flex-col gap-6">
+    <div v-if="totalRecords > perPage" class="flex flex-col gap-6">
       <AppPagination :total="totalRecords" :items-per-page="perPage" @change="getrecords" />
     </div>
 
