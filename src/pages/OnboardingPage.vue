@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted } from "vue";
+import { ref, reactive, computed, watch, onMounted,nextTick } from "vue";
 import {
     ChevronLeft, ChevronRight, User, Building, FileText, Shield,
     CheckCircle, Phone, Mail, Loader2, Key, Eye, EyeOff, X
@@ -9,6 +9,7 @@ import { z } from "zod";
 import { useToast } from "../hooks/use-toast";
 import { useAuthStore } from "@/stores/auth";
 const { toast } = useToast();
+const stepsContainer = ref<HTMLElement | null>(null);
 const auth = useAuthStore();
 import axios from "../axios";
 const step1Schema = z.object({
@@ -101,7 +102,29 @@ const form3 = reactive({
     ifscCode: "",
     accountHolderName: ""
 });
+watch(currentStep, async (newStep) => {
+    await nextTick();
 
+    const container = stepsContainer.value;
+    if (!container) return;
+
+    const items = container.querySelectorAll('.step-item');
+    const index = steps.findIndex(s => s.number === newStep);
+    const activeItem = items[index] as HTMLElement;
+
+    if (!activeItem) return;
+
+    const containerWidth = container.clientWidth;
+    const itemOffset =
+        activeItem.offsetLeft -
+        containerWidth / 2 +
+        activeItem.clientWidth / 2;
+
+    container.scrollTo({
+        left: itemOffset,
+        behavior: 'smooth',
+    });
+});
 const form4 = reactive({
     website: "",
     services: "",
@@ -430,7 +453,11 @@ const validateForm = (schema: z.ZodSchema, data: any) => {
         result.error.issues.forEach((issue) => {
             const field = issue.path[0];
             console.log('ds', issue);
-
+            toast({
+                title: "Error",
+                description: issue.message,
+                variant: "destructive",
+            });
             errors[field as string] = issue.message;
         });
         return false;
@@ -472,8 +499,6 @@ const aadhaarfrontUrl = computed(() => {
 
     return ImageUrl.value + aadhaarFrontPreview.value
 })
-
-
 const removeAadhaarFront = async () => {
     try {
 
@@ -483,18 +508,12 @@ const removeAadhaarFront = async () => {
             !aadhaarFrontPreview.value.startsWith('data:')
         ) {
             await axios.post('/user-aadhaar-remov')
-
             aadhaarBack.value = null
             aadhaarBackPreview.value = null
             getuserdetail();
         }
-
-
         aadhaarFront.value = null
         aadhaarFrontPreview.value = null
-
-
-
     } catch (error) {
         console.error('Aadhaar front remove failed', error)
         alert('Aadhaar front image remove nahi ho payi')
@@ -703,9 +722,7 @@ const verifyAadhaar = async () => {
 };
 
 const verifyBank = async () => {
-
     isLoading.value = true;
-
     try {
         const formData = new FormData()
         formData.append('account_number', form3.accountNumber);
@@ -727,20 +744,14 @@ const verifyBank = async () => {
             })
         }
 
-
-
-
     } catch (error: any) {
 
-
         let message = 'Something went wrong'
-
         if (error.response?.data?.message) {
             message = error.response.data.message
         } else if (error.response?.data?.error) {
             message = error.response.data.error
         }
-
         toast({
             title: 'Error',
             description: message,
@@ -759,9 +770,7 @@ const verifyBank = async () => {
 
 const nextStep = async () => {
     if (currentStep.value === 1) {
-
         const isValid = validateForm(step1Schema, form1);
-
         if (!isValid) return;
         console.log('okk');
         const numberToSend = countryCode.value + form1.phone;
@@ -779,8 +788,6 @@ const nextStep = async () => {
 
         businessInformation();
         return;
-
-
     } else if (currentStep.value === 5) {
         if (!isVerifying.value) {
             currentStep.value = 6;
@@ -1083,7 +1090,7 @@ const resendEmailOTP = async () => {
 };
 const resendOTP = async () => {
     form1.otp = ""   // clear old otp
-     isLoading1.value = true;
+    isLoading1.value = true;
     await sendOTP()
 }
 onMounted(async () => {
@@ -1116,20 +1123,29 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <div class="flex items-center justify-between mb-12 overflow-x-auto pb-4">
-                <div v-for="step in steps" :key="step.number" class="flex flex-col items-center min-w-0 flex-1 px-2">
+            <div ref="stepsContainer"
+                class="flex items-center gap-4 mb-12 overflow-x-auto pb-4 flex-nowrap scrollbar-hide">
+                <div v-for="step in steps" :key="step.number"
+                    class="step-item flex flex-col items-center flex-shrink-0 w-1/2 sm:w-auto px-2">
                     <div class="flex items-center justify-center w-12 h-12 rounded-full border-2 mb-2 transition-colors"
-                        :class="currentStep >= step.number ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 text-slate-400'">
+                        :class="currentStep >= step.number
+                            ? 'bg-blue-600 border-blue-600 text-white'
+                            : 'border-slate-300 text-slate-400'">
                         <component :is="step.icon" class="h-5 w-5" />
                     </div>
-                    <span class="text-xs font-medium text-center whitespace-nowrap"
-                        :class="currentStep >= step.number ? 'text-blue-600' : 'text-slate-400'">
+
+                    <span class="text-xs font-medium text-center whitespace-nowrap" :class="currentStep >= step.number
+                        ? 'text-blue-600'
+                        : 'text-slate-400'">
                         {{ step.title }}
                     </span>
                 </div>
             </div>
 
-            <div class="bg-white/80 backdrop-blur-md border border-white/20 shadow-xl rounded-xl p-8 mb-8">
+
+
+
+            <div class="bg-white/80 backdrop-blur-md border border-white/20 shadow-xl rounded-xl p-2 sm:p-8 mb-8">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold mb-2">Step {{ currentStep }}: {{ steps[currentStep - 1].title }}</h2>
                 </div>
@@ -1143,7 +1159,7 @@ onMounted(async () => {
                         <p v-if="errors.merchantName" class="text-sm text-red-500">{{ errors.merchantName }}</p>
                     </div>
 
-                    <div class="border border-slate-200 rounded-lg p-4 bg-slate-50/50">
+                    <div class="border border-slate-200 rounded-lg p-2 sm:p-4 bg-slate-50/50">
                         <h3 class="text-sm font-medium mb-3 flex items-center gap-2">
                             <Mail class="h-4 w-4" /> Email Verification
                         </h3>
@@ -1549,17 +1565,16 @@ onMounted(async () => {
                         </button>
 
                         <!-- Verify + Resend -->
-                        <template v-else> 
+                        <template v-else>
                             <button @click="verifyPhoneOTP" :disabled="!form1.otp || isLoading"
-                                class="px-4 py-2 text-sm bg-black text-white rounded hover:bg-slate-800 disabled:opacity-50"
-                                >
-                                  {{ isLoading ? "Verify OTP..." : "Verify OTP" }}
+                                class="px-4 py-2 text-sm bg-black text-white rounded hover:bg-slate-800 disabled:opacity-50">
+                                {{ isLoading ? "Verify OTP..." : "Verify OTP" }}
                             </button>
 
-                            <button @click="resendOTP"   :disabled="isLoading1"
+                            <button @click="resendOTP" :disabled="isLoading1"
                                 class="px-4 py-2 text-sm border rounded hover:bg-slate-100 disabled:opacity-50">
-                               
-                                    {{ isLoading1 ? "Sending..." : "Resend OTP" }}
+
+                                {{ isLoading1 ? "Sending..." : "Resend OTP" }}
                             </button>
                         </template>
                     </div>
@@ -1783,4 +1798,6 @@ onMounted(async () => {
     border-top-color: currentColor;
     border-radius: 50%;
 }
+
+
 </style>
