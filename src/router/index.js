@@ -49,6 +49,8 @@ import CompanyVerificationPage from "@/pages/dashboard/CompanyVerificationPage.v
 import DinVerificationPage from "@/pages/dashboard/DinVerificationPage.vue";
 import GstinVerificationPage from "@/pages/dashboard/GstinVerificationPage.vue";
 import OnboardingPage from "@/pages/OnboardingPage.vue";
+
+import Documentation from "@/pages/Documentation.vue";
 // new
 
 const routes = [
@@ -59,6 +61,9 @@ const routes = [
   { path: "/login", name: "login", component: Login, meta: { layout: "auth" } },
   { path: "/onboarding", name: "onboarding", component: OnboardingPage, meta: { requiresAuth: false } },
   { path: "/docs", name: "docs", component: DocsPage, meta: { requiresAuth: true } },
+  { path: "/documentation", name: "documentation", component: Documentation, meta: { requiresAuth: false } },
+
+
 
   {
     path: "/app",

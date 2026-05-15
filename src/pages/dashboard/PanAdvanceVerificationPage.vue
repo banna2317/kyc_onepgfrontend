@@ -396,6 +396,12 @@ const handleFilter = async (filters: {
 
 
                         <div class="flex justify-between items-center py-2 border-b border-border/50">
+                            <span class="text-muted-foreground font-medium">Fees</span>
+                            <span class="font-medium">
+                                {{ selectedRecord.fees }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-border/50">
                             <span class="text-muted-foreground font-medium">Status</span>
                             <span class="font-medium">
                                 {{ selectedRecord.status }}

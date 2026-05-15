@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted,watch, computed } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import {
     Card,
     CardContent,
@@ -31,9 +31,9 @@ import { Label } from "@/components/ui/label";
 import { Wallet, Download, Plus } from "lucide-vue-next";
 import { useToast } from "@/hooks/use-toast";
 import axios from "@/axios";
-
+declare var Cashfree: any;
 const { toast } = useToast();
-
+const cf = new Cashfree({ mode: "sandbox" });
 const autoTopUp = ref(true);
 const topUpAmount = ref("");
 const isTopUpOpen = ref(false);
@@ -63,66 +63,55 @@ const handleTopUpWallet = () => {
 
 async function handleTopUpSubmit() {
     const amount = parseFloat(topUpAmount.value);
+
     if (!amount || amount <= 0) {
         toast({
             title: "Invalid Amount",
-            description: "Please enter a valid amount greater than 0",
+            description: "Enter valid amount",
             variant: "destructive"
         });
         return;
     }
+
+    console.log('okkk');
+    
+
     try {
-        const response = await axios.post("/user-topup", {
-
-            amount: topUpAmount.value,
-
+        const res = await axios.post("/user-topup", {
+            amount: amount,
         });
-        fetchInvoices();
-        fetchWalletBalance();
-        console.log('lok', response.data.status);
+        console.log(res.data.success);
+        
 
-        if (response.data.status === true) {
-            toast({
-                title: "Success",
-                description: response.data.message,
+        if (res.data.success) {
+
+            const sessionId = res.data.payment_session_id;
+            console.log('gol',sessionId);
+            
+
+            const cashfree = new Cashfree({
+                mode: "sandbox"
             });
-            isTopUpOpen.value = false;
-            topUpAmount.value = "";
+
+            await cashfree.checkout({
+                paymentSessionId: sessionId,
+                redirectTarget: "_modal"
+            });
+
         }
 
     } catch (err) {
-
-
-         if (err.response && err.response.status === 422) {
-            const errors = err.response.data.errors;
-            Object.values(errors).forEach((msgArray) => {
-                toast({
-                    title: "Validation Error",
-                    description: msgArray[0],
-                    variant: "destructive",
-                });
-            });
-            return;
-        }
-        if (err.response && err.response.status === 401) {
-            toast({
-                title: "Unauthorized",
-                description: err.response.data.message || "Please login first.",
-                variant: "destructive",
-            });
-            return;
-        }
         toast({
             title: "Error",
-            description: err.response?.data?.message || "Something went wrong.",
-            variant: "destructive",
-        }); 
-
-
-    } finally {
-
+            description: "Payment failed",
+            variant: "destructive"
+        });
+    }finally {
+        isTopUpOpen.value = false;
+        fetchWalletBalance();
+        
     }
-};
+}
 
 
 watch(currentTab, (newTab) => {
@@ -146,18 +135,64 @@ const fetchInvoices = async () => {
     }
 }
 
-const handleDownloadAll = () => {
-    toast({
-        title: "Download Started",
-        description: "All invoices are being downloaded"
-    });
+const handleDownloadAll = async () => {
+    try {
+        toast({
+            title: "Download Started",
+            description: "All invoices are being downloaded"
+        });
+
+        const response = await axios.post(
+            '/download-all-invoices',
+            {},
+            { responseType: 'blob' }
+        );
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'all_invoices.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+    } catch (error) {
+        console.error(error);
+    }
 };
 
-const handleDownloadInvoice = (invoiceId: string) => {
-    toast({
+const handleDownloadInvoice = async (invoiceId: string) => {
+    // toast({
+    //     title: "Download Started",
+    //     description: `Invoice ${invoiceId} is being downloaded`
+    // });
+
+    try {
+        const response = await axios.post(
+            `/invoice-download`,
+            { invoice_id: invoiceId },
+            {
+                responseType: 'blob'
+            }
+        );
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `invoice_${invoiceId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+          toast({
         title: "Download Started",
         description: `Invoice ${invoiceId} is being downloaded`
     });
+
+    } catch (error) {
+        console.error('Download Error:', error);
+    }
+
 };
 
 const getStatusBadge = (status: string) => {
@@ -170,15 +205,39 @@ const getStatusBadge = (status: string) => {
 };
 
 
+const totalCount = computed(() => {
+    return usageByService.value.reduce((sum, item) => {
+        return sum + (item.count || 0)
+    }, 0)
+})
 
+const usagePercentageForService = (count: number, index: number) => {
+    if (!totalCount.value) return 0;
 
-const usagePercentageForService = (cost: number) => (cost / monthlySpend.value) * 100;
+    const percentage = (count / totalCount.value) * 100;
+
+    // Last item → adjust
+    if (index === usageByService.value.length - 1) {
+        const totalSoFar = usageByService.value
+            .slice(0, -1)
+            .reduce((sum, item) => {
+                return sum + Number(((item.count / totalCount.value) * 100).toFixed(1));
+            }, 0);
+
+        return Number((100 - totalSoFar).toFixed(1)); // 👈 FIX HERE
+    }
+
+    return Number(percentage.toFixed(1));
+};
 const fetchWalletBalance = async () => {
     try {
         const response = await axios.post('/user-wallet')
 
+        console.log(response);
+
         if (response.data.status === true) {
-            walletBalance.value = response.data.data
+            walletBalance.value = response.data.walletbalance
+            usageByService.value = response.data.usage_summary;
         }
     } catch (error) {
         console.error('API Error:', error)
@@ -189,6 +248,7 @@ onMounted(() => {
     fetchWalletBalance();
 
 });
+
 </script>
 
 <template>
@@ -269,7 +329,7 @@ onMounted(() => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <TableRow v-for="item in usageByService" :key="item.service">
+                                <TableRow v-for="(item, index) in usageByService" :key="item.service">
                                     <TableCell class="font-medium">{{ item.service }}</TableCell>
                                     <TableCell>
                                         <Badge variant="outline">{{ item.count.toLocaleString() }}</Badge>
@@ -279,8 +339,9 @@ onMounted(() => {
                                         item.avgCost.toFixed(2) }}</TableCell>
                                     <TableCell>
                                         <div class="flex items-center space-x-2">
-                                            <Progress :value="usagePercentageForService(item.cost)" class="h-2 w-16" />
-                                            <span class="text-sm">{{ usagePercentageForService(item.cost).toFixed(1)
+                                            <Progress :value="usagePercentageForService(item.count, index)"
+                                                class="h-2 w-16" />
+                                            <span class="text-sm">{{ usagePercentageForService(item.count, index)
                                             }}%</span>
                                         </div>
                                     </TableCell>
@@ -317,7 +378,7 @@ onMounted(() => {
                                 <TableRow>
                                     <TableHead>Invoice ID</TableHead>
                                     <TableHead>Date</TableHead>
-                                  
+
                                     <TableHead>Amount</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Actions</TableHead>
@@ -326,28 +387,29 @@ onMounted(() => {
                             <TableBody>
                                 <TableRow v-for="invoice in invoices" :key="invoice.id">
                                     <TableCell class="font-mono text-sm">{{ invoice.invoice_id }}</TableCell>
-                                    <TableCell class="text-sm">{{ new Date(invoice.created_at).toLocaleString('en-IN', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
-  }) }}</TableCell>
-                                 
+                                    <TableCell class="text-sm">{{ new Date(invoice.created_at).toLocaleString('en-IN', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit'
+                                    }) }}</TableCell>
+
                                     <TableCell class="font-mono">₹{{ invoice.amount.toLocaleString() }}</TableCell>
                                     <TableCell>
                                         <Badge :class="{
                                             'bg-success/10 text-success border-success/20': getStatusBadge(invoice.status).variant === 'success',
                                             'bg-warning/10 text-warning border-warning/20': getStatusBadge(invoice.status).variant === 'warning',
-                                            'bg-destructive text-destructive border-destructive/20': getStatusBadge(invoice.status).variant === 'destructive',
+                                            'bg-destructive/10 text-destructive border-destructive/20': getStatusBadge(invoice.status).variant === 'destructive',
                                             'bg-secondary/10 text-secondary border-secondary/20': getStatusBadge(invoice.status).variant === 'secondary'
                                         }">
                                             {{ getStatusBadge(invoice.status).text }}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
-                                        <Button variant="ghost" size="sm" @click="handleDownloadInvoice(invoice.id)">
+                                        <Button variant="ghost" size="sm"
+                                            @click="handleDownloadInvoice(invoice.invoice_id)">
                                             <Download class="h-4 w-4" />
                                         </Button>
                                     </TableCell>
