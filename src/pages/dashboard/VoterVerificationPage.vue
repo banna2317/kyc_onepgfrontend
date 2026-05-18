@@ -308,7 +308,7 @@ const handleFilter = async (filters: {
         <Dialog :open="isDialogOpen" @update:open="val => isDialogOpen = val">
             <DialogContent class="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Verify Aadhaar </DialogTitle>
+                    <DialogTitle>Verify Voter </DialogTitle>
                 </DialogHeader>
 
                 <div class="space-y-4">
