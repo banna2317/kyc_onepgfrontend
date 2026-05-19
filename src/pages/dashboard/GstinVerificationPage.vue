@@ -239,7 +239,7 @@ const handleFilter = async (filters: {
                                     <TableRow class="border-b">
                                         <TableHead>Verified At</TableHead>
                                         <TableHead>Verification ID</TableHead>
-                                        <TableHead>Company ID Number</TableHead>
+                                        <TableHead>GSTIN Number</TableHead>
                                         <TableHead>Legal Name</TableHead>
 
 
