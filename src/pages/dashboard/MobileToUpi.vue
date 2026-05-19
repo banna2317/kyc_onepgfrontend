@@ -227,7 +227,7 @@ const handleFilter = async (filters: {
 
             <div class="flex items-center gap-4  md:ml-auto flex-wrap">
                 <FilterDropdown :search-options="[
-                    { label: 'License Number', value: 'license_number' },
+                    { label: 'Mobile Number', value: 'phone_number' },
                     { label: 'Verification ID', value: 'verification_id' }
                 ]" @apply="handleFilter" />
 

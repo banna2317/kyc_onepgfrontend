@@ -472,7 +472,7 @@ const handleFilter = async (filters: {
             </div>
 
             <div class="flex justify-between items-center py-2 border-b border-border/50">
-              <span class="text-muted-foreground font-medium">Account Number</span>
+              <span class="text-muted-foreground font-medium">UPI ID</span>
               <span class="font-mono">
                 {{ selectedRecord.upi_id }}
               </span>
