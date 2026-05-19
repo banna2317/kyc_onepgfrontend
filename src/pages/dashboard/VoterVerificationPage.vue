@@ -249,7 +249,7 @@ const handleFilter = async (filters: {
                                         <TableHead>Voter ID Number</TableHead>
                                         <TableHead>Name</TableHead>
 
-                                        <TableHead>DOB</TableHead>
+                                      
 
                                         <TableHead>Status</TableHead>
 
@@ -264,7 +264,7 @@ const handleFilter = async (filters: {
                                         </TableCell>
                                         <TableCell class="font-mono">{{ record.voter_id }}</TableCell>
                                         <TableCell class="font-mono">{{ record.name ?? "N/A" }}</TableCell>
-                                        <TableCell class="font-mono">{{ record.dob ?? "N/A" }}</TableCell>
+                                      
                                         <TableCell>{{ record.status }}</TableCell>
 
 
