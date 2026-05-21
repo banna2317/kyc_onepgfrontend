@@ -108,6 +108,7 @@ async function handleVerify() {
         });
     } finally {
         isVerifying.value = false;
+        isDialogOpen.value = false;
     }
 }
 
@@ -197,7 +198,7 @@ const handleFilter = async (filters: {
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
             <div>
-                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">Pancard an Aadharcard Link
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">Pancard and Aadharcard Link
                     Verification</h1>
 
                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 mt-2">

@@ -112,6 +112,7 @@ async function handleVerify() {
         });
     } finally {
         isVerifying.value = false;
+        isDialogOpen.value = false;
     }
 }
 
