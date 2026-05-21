@@ -99,6 +99,7 @@ async function handleVerify() {
     } finally {
         isVerifying.value = false;
         isDialogOpen.value = false;
+        aadhaar_number.value = "";
     }
 }
 
