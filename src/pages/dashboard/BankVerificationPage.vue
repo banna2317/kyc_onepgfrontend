@@ -196,6 +196,8 @@ async function handleVerify() {
   } finally {
     isVerifying.value = false;
     isDialogOpen.value = false;
+    formData.value.accountNumber = "";
+    formData.value.ifsc = "";
      getrecords();
   }
 }
