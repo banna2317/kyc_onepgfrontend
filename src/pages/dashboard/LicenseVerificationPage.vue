@@ -110,6 +110,8 @@ async function handleVerify() {
     } finally {
         isVerifying.value = false;
         isDialogOpen.value = false;
+        license_number.value = "";
+        dob.value = "";
     }
 }
 
