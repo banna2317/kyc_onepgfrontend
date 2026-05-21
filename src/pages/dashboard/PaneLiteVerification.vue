@@ -53,8 +53,6 @@ async function handleVerify() {
         });
         return;
     }
-
-
     try {
         const response = await axios.post("/pan-lite", {
             pancard_number: pancard_number.value,
@@ -93,6 +91,8 @@ async function handleVerify() {
         });
     } finally {
         isVerifying.value = false;
+        pancard_number.value = "";
+        isDialogOpen.value = false;
     }
 }
 const appliedFilters = ref<{

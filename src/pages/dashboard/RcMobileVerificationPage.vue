@@ -93,6 +93,8 @@ async function handleVerify() {
         });
     } finally {
         isVerifying.value = false;
+        rc_number.value = "";
+         isDialogOpen.value = false;
     }
 }
 

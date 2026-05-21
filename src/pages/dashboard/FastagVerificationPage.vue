@@ -103,6 +103,9 @@ async function handleVerify() {
         });
     } finally {
         isVerifying.value = false;
+        rc_no.value = "";
+        fastag.value = "";
+        isDialogOpen.value = false;
     }
 }
 

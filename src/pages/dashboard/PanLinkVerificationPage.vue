@@ -90,6 +90,7 @@ async function handleVerify() {
         });
     } finally {
         isVerifying.value = false;
+        pancard_number.value = "";
     }
 }
 

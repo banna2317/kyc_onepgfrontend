@@ -93,6 +93,8 @@ async function handleVerify() {
         });
     } finally {
         isVerifying.value = false;
+        engine_no.value = "";
+         isDialogOpen.value = false;
     }
 }
 

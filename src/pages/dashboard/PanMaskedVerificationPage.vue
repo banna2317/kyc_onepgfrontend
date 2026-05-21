@@ -92,6 +92,7 @@ async function handleVerify() {
     } finally {
         isVerifying.value = false;
         isDialogOpen.value = false;
+        pancard_number.value = "";
     }
 }
 
