@@ -278,13 +278,13 @@ const handleSignOut = async () => {
 
         <div class="flex items-center space-x-4">
           <!-- Notifications -->
-          <Button variant="ghost" size="sm" class="h-9 w-9 relative">
+          <!-- <Button variant="ghost" size="sm" class="h-9 w-9 relative">
             <Bell class="h-4 w-4" />
             <span
               class="absolute -top-1 -right-1 h-5 w-5 bg-destructive text-destructive-foreground text-[10px] leading-none rounded-full flex items-center justify-center font-medium">
               3
             </span>
-          </Button>
+          </Button> -->
 
           <!-- Profile Menu -->
           <DropdownMenu>
