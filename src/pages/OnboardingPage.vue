@@ -831,16 +831,16 @@ watch(
 );
 
 const verifyGSTIN = async () => {
-    if (!form2.businessType) {
+    // if (!form2.businessType) {
 
-        toast({
-            title: "Error",
-            description: "Please select business type",
-            variant: "destructive",
-        });
-        return;
-    }
-    if (!form2.gstin || form2.gstin.length !== 15) {
+    //     toast({
+    //         title: "Error",
+    //         description: "Please select business type",
+    //         variant: "destructive",
+    //     });
+    //     return;
+    // }
+    if (form2.gstin && form2.gstin.length !== 15) {
 
         toast({
             title: "Error",
@@ -1095,7 +1095,7 @@ const resendOTP = async () => {
 }
 onMounted(async () => {
     await getuser();
-
+    console.log('currentStep.value', currentStep.value);
     if (currentStep.value === 2) {
         getuserdetail();
     }
