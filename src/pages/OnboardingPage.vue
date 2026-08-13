@@ -189,7 +189,7 @@ const sendEmailOTP = async () => {
                 isLoading.value = false;
                 toast({
                     title: "Success",
-                    description: `Please check your email for the OTP. ${response.data.otp}`,
+                    description: 'Please check your email for the OTP.',
                     variant: "default",
                 });
 
