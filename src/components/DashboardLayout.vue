@@ -91,7 +91,7 @@ const serviceGroups = [
     items: [
       { name: "RC Full", href: "/app/services/rc-full", icon: User },
       { name: "RC Special", href: "/app/services/rc-special", icon: User },
-      { name: "RC With Mobilel", href: "/app/services/rc-mobile", icon: User },
+      { name: "RC With Mobile", href: "/app/services/rc-mobile", icon: User },
       { name: "Engine To RC", href: "/app/services/rc-engine", icon: User },
       { name: "Fastag", href: "/app/services/fastag", icon: User },
     ],
