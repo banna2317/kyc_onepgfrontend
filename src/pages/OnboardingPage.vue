@@ -915,7 +915,9 @@ const getuserdetail = async () => {
         if (response.data.status === true) {
 
             currentStep.value = response.data.step;
-
+            if (response.data.data.gstin) {
+               form2.gstin = response.data.data.gstin;
+            }
             if (response.data.data.pancard_number && response.data.data.pancard_name && response.data.data.dob) {
                 panVerified.value = true;
                 panPreview.value = response.data.data.pancard_image;
@@ -1680,7 +1682,9 @@ onMounted(async () => {
 
         <div v-if="aadhaarDialogOpen" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
 
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 space-y-5">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-md
+               max-h-[90vh] overflow-y-auto
+               p-4 sm:p-6 space-y-5">
                 <h3 class="text-lg font-semibold">Aadhaar Verification</h3>
 
                 <!-- Aadhaar Front -->
