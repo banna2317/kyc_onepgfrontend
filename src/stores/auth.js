@@ -51,6 +51,7 @@ export const useAuthStore = defineStore("auth", () => {
       
       return { error: null };
     } catch (err) {
+       console.log('lppp');
       return { error: err.response?.data || { message: "Login failed" } };
     }
   };
@@ -64,7 +65,9 @@ export const useAuthStore = defineStore("auth", () => {
    
 
       const res = await axios.post("/register", { name, email, phone_number, password });
-    
+      
+      console.log('res',res);
+      
 
       user.value = res.data.user;
       accessToken.value = res.data.token;
@@ -74,6 +77,7 @@ export const useAuthStore = defineStore("auth", () => {
 
       return { error: null };
     } catch (err) {
+        console.log('lppp',err.response?.data);
       return { error: err.response?.data || { message: "SignUp failed" } };
     }
   };

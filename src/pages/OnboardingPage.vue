@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted,nextTick } from "vue";
+import { ref, reactive, computed, watch, onMounted, nextTick } from "vue";
 import {
     ChevronLeft, ChevronRight, User, Building, FileText, Shield,
     CheckCircle, Phone, Mail, Loader2, Key, Eye, EyeOff, X
@@ -774,8 +774,47 @@ const nextStep = async () => {
         if (!isValid) return;
         console.log('okk');
         const numberToSend = countryCode.value + form1.phone;
-        await auth.signUp(form1.merchantName, form1.email, numberToSend, form1.password);
-        getuserdetail();
+        // await auth.signUp(form1.merchantName, form1.email, numberToSend, form1.password);
+        // getuserdetail();
+
+        try {
+          const auth1 =   await auth.signUp(
+                form1.merchantName,
+                form1.email,
+                numberToSend,
+                form1.password
+            );
+
+            if( auth1.error) {
+                toast({
+                    title: "Error",
+                    description: auth1.error.message || "Registration failed. Please try again.",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            // SignUp successful hone ke baad hi ye chalega
+            await getuserdetail();
+
+            // Agar next step par jana hai
+            currentStep.value++;
+
+        } catch (error) {
+            console.log('Signup Error:', error);
+
+          
+
+            toast({
+                title: "Error",
+                description:
+                    error?.response?.data?.message ||
+                    "Registration failed. Please try again.",
+                variant: "destructive",
+            });
+            return;
+        }
+
     } else if (currentStep.value === 2) {
         verifyGSTIN();
         return;
@@ -916,7 +955,7 @@ const getuserdetail = async () => {
 
             currentStep.value = response.data.step;
             if (response.data.data.gstin) {
-               form2.gstin = response.data.data.gstin;
+                form2.gstin = response.data.data.gstin;
             }
             if (response.data.data.pancard_number && response.data.data.pancard_name && response.data.data.dob) {
                 panVerified.value = true;
@@ -1802,6 +1841,4 @@ onMounted(async () => {
     border-top-color: currentColor;
     border-radius: 50%;
 }
-
-
 </style>
